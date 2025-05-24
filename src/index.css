@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+nav a::after {
+  content: "";
+}
