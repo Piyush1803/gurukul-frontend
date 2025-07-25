@@ -2,6 +2,102 @@ import { motion } from "framer-motion";
 import { Users, BookOpen, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import React, { useState } from 'react';
+
+// --- ContactForm with Sheety integration ---
+const ContactForm = () => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submissionStatus, setSubmissionStatus] = useState(null);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setIsSubmitting(true);
+        setSubmissionStatus(null);
+
+        const SHEETY_ENDPOINT = 'https://api.sheety.co/7c902e1a3a2e23b195242f624ed6ddc6/coursesQueryList/sheet1';
+        const form = event.target;
+        const formData = new FormData(form);
+        const now = new Date();
+        const submittedAt = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        const data = {
+            name: formData.get("name"),
+            phoneNo: formData.get("phoneNo"), // now phoneNo comes second
+            email: formData.get("email"),
+            age: formData.get("age"),
+            address: formData.get("address"),
+            submittedAt,
+        };
+
+        try {
+            const response = await fetch(SHEETY_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sheet1: data }),
+            });
+
+            if (response.ok) {
+                setSubmissionStatus('success');
+                form.reset();
+            } else {
+                const errorData = await response.json();
+                console.error('Submission failed:', errorData);
+                setSubmissionStatus('error');
+            }
+        } catch (error) {
+            console.error('An error occurred:', error);
+            setSubmissionStatus('error');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.6, -0.05, 0.01, 0.99] }}
+            viewport={{ once: true }}
+            className="max-w-xl mx-auto mt-24 bg-background rounded-2xl shadow-warm p-10"
+        >
+            <h2 className="text-3xl font-serif font-bold mb-6 text-center">Contact Us Now for Courses</h2>
+            <form className="space-y-6" onSubmit={handleSubmit}>
+                <div>
+                    <label className="block text-left text-muted-foreground mb-1 font-medium">Name</label>
+                    <input type="text" name="name" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="Your Name" />
+                </div>
+                <div>
+                    <label className="block text-left text-muted-foreground mb-1 font-medium">Phone Number</label>
+                    <input type="tel" name="phoneNo" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="Your Phone Number" />
+                </div>
+                <div>
+                    <label className="block text-left text-muted-foreground mb-1 font-medium">Email (optional)</label>
+                    <input type="email" name="email" className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="you@email.com" />
+                </div>
+                <div>
+                    <label className="block text-left text-muted-foreground mb-1 font-medium">Age</label>
+                    <input type="number" name="age" required min="1" className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="Your Age" />
+                </div>
+                <div>
+                    <label className="block text-left text-muted-foreground mb-1 font-medium">Address</label>
+                    <input type="text" name="address" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="Your Address" />
+                </div>
+                <motion.div whileHover={{ scale: isSubmitting ? 1 : 1.04 }} whileTap={{ scale: isSubmitting ? 1 : 0.97 }}>
+                    <Button type="submit" variant="hero" size="lg" className="w-full text-lg py-3" disabled={isSubmitting}>
+                        {isSubmitting ? 'Sending...' : 'Send Inquiry'}
+                    </Button>
+                </motion.div>
+                {submissionStatus === 'success' && (
+                    <p className="text-center text-green-500 mt-4">Thank you! Your inquiry has been sent successfully.</p>
+                )}
+                {submissionStatus === 'error' && (
+                    <p className="text-center text-red-500 mt-4">Something went wrong. Please try again later.</p>
+                )}
+            </form>
+        </motion.div>
+    );
+};
 
 const courses = [
     {
@@ -120,68 +216,9 @@ export const Courses = () => {
                     ))}
                 </motion.div>
 
-                {/* Google Form Embed */}
-                <div className="max-w-2xl mx-auto mt-20 mb-20">
-                    <iframe
-                        src="https://docs.google.com/forms/d/e/PLACEHOLDER_FORM_ID/viewform?embedded=true"
-                        width="100%"
-                        height="700"
-                        frameBorder="0"
-                        marginHeight={0}
-                        marginWidth={0}
-                        title="Course Inquiry Form"
-                        className="w-full rounded-2xl shadow-lg bg-white"
-                        allowFullScreen
-                    >
-                        Loading…
-                    </iframe>
-                </div>
-
-                <div className="text-center mt-16">
-                    <Link to="/">
-                        <Button variant="outline" size="lg" className="text-lg px-8 py-3 hover:scale-105 transition-transform duration-200">
-                            Back to Home
-                        </Button>
-                    </Link>
-                </div>
-
                 {/* Contact Us Form */}
-                <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.6, -0.05, 0.01, 0.99] }}
-                    viewport={{ once: true }}
-                    className="max-w-xl mx-auto mt-24 bg-background rounded-2xl shadow-warm p-10"
-                >
-                    <h2 className="text-3xl font-serif font-bold mb-6 text-center">Contact Us Now for Courses</h2>
-                    <form className="space-y-6">
-                        <div>
-                            <label className="block text-left text-muted-foreground mb-1 font-medium">Name</label>
-                            <input type="text" name="name" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="Your Name" />
-                        </div>
-                        <div>
-                            <label className="block text-left text-muted-foreground mb-1 font-medium">Email</label>
-                            <input type="email" name="email" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="you@email.com" />
-                        </div>
-                        <div>
-                            <label className="block text-left text-muted-foreground mb-1 font-medium">Course Interest</label>
-                            <select name="course" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition">
-                                <option value="">Select a course</option>
-                                {courses.map((course) => (
-                                    <option key={course.title} value={course.title}>{course.title}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-left text-muted-foreground mb-1 font-medium">Message</label>
-                            <textarea name="message" rows={3} className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="Tell us more or ask a question (optional)" />
-                        </div>
-                        <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                            <Button type="submit" variant="hero" size="lg" className="w-full text-lg py-3">Send Inquiry</Button>
-                        </motion.div>
-                    </form>
-                </motion.div>
+                <ContactForm />
             </div>
         </div>
     );
-}; 
+};
