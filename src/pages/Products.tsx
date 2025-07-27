@@ -15,11 +15,42 @@ interface Product {
 }
 
 interface ProductsProps {
-  onAddToCart?: (product: Product) => void;
+  userId: string; // 👈 Get this from login/session
+  token: string;  // 👈 Get JWT token for Authorization header
 }
 
-export const Products = ({ onAddToCart }: ProductsProps) => {
+export const Products = ({ userId, token }: ProductsProps) => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'pastries' | 'bread' | 'courses'>('all');
+  const handleAddToCart = async (product: Product) => {
+  if (!userId || !token) {
+    alert('Please log in to add items to your cart.');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/cart/addToCart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        userId,
+        productId: product.id,
+        quantity: 1,
+      }),
+    });
+
+    if (response.ok) {
+      alert('Product added to cart!');
+    } else {
+      alert('Failed to add product to cart');
+    }
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    alert('Something went wrong');
+  }
+};
 
   const products: Product[] = [
     {
@@ -202,7 +233,7 @@ export const Products = ({ onAddToCart }: ProductsProps) => {
                     <Button
                       variant="bakery"
                       size="sm"
-                      onClick={() => onAddToCart?.(product)}
+                      onClick={() => handleAddToCart(product)}
                       className="flex items-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
