@@ -47,76 +47,110 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
 
               {/* Form */}
               <motion.form
-                key={isLogin ? "login" : "signup"}
-                initial={{ opacity: 0, x: isLogin ? -20 : 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="space-y-4"
-              >
-                {!isLogin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Full Name
-                    </Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      className="transition-all duration-300 focus:shadow-soft"
-                    />
-                  </div>
-                )}
+ key={isLogin ? "login" : "signup"}
+  initial={{ opacity: 0, x: isLogin ? -20 : 20 }}
+  animate={{ opacity: 1, x: 0 }}
+  className="space-y-4"
+  onSubmit={async (e) => {
+    e.preventDefault();
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    className="transition-all duration-300 focus:shadow-soft"
-                  />
-                </div>
+    const email = (document.getElementById("email") as HTMLInputElement).value;
+    const password = (document.getElementById("password") as HTMLInputElement).value;
 
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="flex items-center gap-2">
-                    <Lock className="h-4 w-4" />
-                    Password
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    className="transition-all duration-300 focus:shadow-soft"
-                  />
-                </div>
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
+    }
 
-                {!isLogin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="flex items-center gap-2">
-                      <Lock className="h-4 w-4" />
-                      Confirm Password
-                    </Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="Confirm your password"
-                      className="transition-all duration-300 focus:shadow-soft"
-                    />
-                  </div>
-                )}
+    try {
+      if (isLogin) {
+        // ✅ LOGIN request
+        const res = await fetch("http://localhost:3001/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            identifier: email,
+            password,
+          }),
+        });
 
-                <Button 
-                  type="submit" 
-                  variant="hero" 
-                  className="w-full" 
-                  size="lg"
-                >
-                  {isLogin ? "Sign In" : "Create Account"}
-                </Button>
-              </motion.form>
+        if (!res.ok) {
+          alert("Invalid login credentials");
+          return;
+        }
+
+        const data = await res.json();
+        localStorage.setItem("token", data.access_token);
+
+        const payload = JSON.parse(atob(data.access_token.split(".")[1]));
+        localStorage.setItem("userId", payload.sub);
+
+        alert("Login successful");
+        onClose();
+        window.location.reload();
+      } else {
+        // ✅ SIGNUP request
+        const username = (document.getElementById("username") as HTMLInputElement).value;
+
+        const res = await fetch("http://localhost:3001/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username,
+            email,
+            password,
+          }),
+        });
+
+        if (!res.ok) {
+          alert("Signup failed");
+          return;
+        }
+
+        alert("Signup successful! Please login.");
+        setIsLogin(true);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
+  }}
+>
+  {!isLogin && (
+  <div>
+    <Label htmlFor="username">Username</Label>
+    <div className="relative">
+      <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Input id="username" type="text" placeholder="Username" className="pl-10" />
+    </div>
+  </div>
+)}
+
+<div>
+  <Label htmlFor="email">Email</Label>
+  <div className="relative">
+    <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+    <Input id="email" type="email" placeholder="Email" className="pl-10" />
+  </div>
+</div>
+
+<div>
+  <Label htmlFor="password">Password</Label>
+  <div className="relative">
+    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+    <Input id="password" type="password" placeholder="Password" className="pl-10" />
+  </div>
+</div>
+
+<Button type="submit" className="w-full">
+  {isLogin ? "Login" : "Signup"}
+</Button>
+</motion.form>
+
 
               {/* Toggle */}
               <div className="mt-6 text-center">

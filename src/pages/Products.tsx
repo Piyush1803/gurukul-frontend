@@ -28,7 +28,7 @@ export const Products = ({ userId, token }: ProductsProps) => {
   }
 
   try {
-    const response = await fetch('http://localhost:3000/cart/addToCart', {
+    const response = await fetch('http://localhost:3001/cart/addToCart', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
