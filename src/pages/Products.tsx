@@ -14,62 +14,27 @@ interface Product {
   duration?: string;
 }
 
-interface ProductsProps {
-  userId: string; // 👈 Get this from login/session
-  token: string;  // 👈 Get JWT token for Authorization header
-}
-
-export const Products = ({ userId, token }: ProductsProps) => {
+const Products = () => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'pastries' | 'bread' | 'courses'>('all');
-  const handleAddToCart = async (product: Product) => {
-  if (!userId || !token) {
-    alert('Please log in to add items to your cart.');
-    return;
-  }
-
-  try {
-    const response = await fetch('http://localhost:3001/cart/addToCart', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        userId,
-        productId: product.id,
-        quantity: 1,
-      }),
-    });
-
-    if (response.ok) {
-      alert('Product added to cart!');
-    } else {
-      alert('Failed to add product to cart');
-    }
-  } catch (error) {
-    console.error('Error adding to cart:', error);
-    alert('Something went wrong');
-  }
-};
 
   const products: Product[] = [
     {
       id: '1',
       name: 'Butter Croissant',
       description: 'Flaky, buttery layers of perfection',
-      price: 3.50,
+      price: 3.5,
       image: '/placeholder.svg',
       category: 'pastries',
-      rating: 4.9
+      rating: 4.9,
     },
     {
       id: '2',
       name: 'Sourdough Loaf',
       description: 'Traditional fermented bread with tangy flavor',
-      price: 8.00,
+      price: 8.0,
       image: '/placeholder.svg',
       category: 'bread',
-      rating: 4.8
+      rating: 4.8,
     },
     {
       id: '3',
@@ -78,47 +43,84 @@ export const Products = ({ userId, token }: ProductsProps) => {
       price: 4.25,
       image: '/placeholder.svg',
       category: 'pastries',
-      rating: 4.7
+      rating: 4.7,
     },
     {
       id: '4',
       name: 'Artisan Baguette',
       description: 'Crispy crust with soft, airy interior',
-      price: 5.50,
+      price: 5.5,
       image: '/placeholder.svg',
       category: 'bread',
-      rating: 4.9
+      rating: 4.9,
     },
     {
       id: '5',
       name: 'Beginner Baking Course',
       description: 'Learn the fundamentals of bread and pastry making',
-      price: 150.00,
+      price: 150.0,
       image: '/placeholder.svg',
       category: 'courses',
-      duration: '4 weeks'
+      duration: '4 weeks',
     },
     {
       id: '6',
       name: 'Advanced Pastry Techniques',
       description: 'Master complex lamination and decoration skills',
-      price: 350.00,
+      price: 350.0,
       image: '/placeholder.svg',
       category: 'courses',
-      duration: '8 weeks'
-    }
+      duration: '8 weeks',
+    },
   ];
 
   const categories = [
     { key: 'all' as const, label: 'All Products' },
     { key: 'pastries' as const, label: 'Pastries' },
     { key: 'bread' as const, label: 'Bread' },
-    { key: 'courses' as const, label: 'Courses' }
+    { key: 'courses' as const, label: 'Courses' },
   ];
 
-  const filteredProducts = activeCategory === 'all' 
-    ? products 
-    : products.filter(product => product.category === activeCategory);
+  const filteredProducts =
+    activeCategory === 'all'
+      ? products
+      : products.filter((product) => product.category === activeCategory);
+
+  const handleAddToCart = async (productId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+
+      if (!token || !userId) {
+        alert('Please login first.');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3001/cart/addToCart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId,
+          productId,
+          quantity: 1,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to add to cart');
+      }
+
+      alert('✅ Added to cart!');
+    } catch (err: any) {
+      console.error('Add to cart error:', err.message);
+      alert('❌ Something went wrong: ' + err.message);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -173,7 +175,7 @@ export const Products = ({ userId, token }: ProductsProps) => {
             {categories.map((category) => (
               <Button
                 key={category.key}
-                variant={activeCategory === category.key ? "bakery" : "outline"}
+                variant={activeCategory === category.key ? 'bakery' : 'outline'}
                 onClick={() => setActiveCategory(category.key)}
                 className="transition-all duration-300"
               >
@@ -224,16 +226,16 @@ export const Products = ({ userId, token }: ProductsProps) => {
                 <div className="p-6">
                   <h3 className="text-xl font-serif font-semibold mb-2">{product.name}</h3>
                   <p className="text-muted-foreground mb-4 leading-relaxed">{product.description}</p>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-primary">
                       ${product.price.toFixed(2)}
                     </span>
-                    
+
                     <Button
                       variant="bakery"
                       size="sm"
-                      onClick={() => handleAddToCart(product)}
+                      onClick={() => handleAddToCart(product.id)}
                       className="flex items-center gap-2"
                     >
                       <Plus className="h-4 w-4" />
@@ -261,3 +263,5 @@ export const Products = ({ userId, token }: ProductsProps) => {
     </div>
   );
 };
+
+export default Products;
