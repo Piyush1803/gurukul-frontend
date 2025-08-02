@@ -51,7 +51,7 @@ export const Hero = () => {
           variants={itemVariants}
           className="text-5xl md:text-7xl font-serif font-bold text-foreground mb-6"
         >
-          Gurukul bakery
+          Gurukul Bakery
         </motion.h1>
 
         <motion.p
