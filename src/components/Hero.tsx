@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 import heroImage from "@/assets/bakery-hero.jpg";
+import { Link } from "react-router-dom";
 
 export const Hero = () => {
   const containerVariants = {
@@ -69,9 +70,13 @@ export const Hero = () => {
             Order Now
           </Button>
 
-          <Button variant="outline" size="lg" className="text-lg px-8 py-3 bg-background/10 border-foreground/20 text-foreground hover:bg-background/20">
-            View Courses
-          </Button>
+          <Link to="/courses">
+            <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.97 }}>
+              <Button variant="outline" size="lg" className="text-lg px-8 py-3 bg-background/10 border-foreground/20 text-foreground hover:bg-background/20">
+                View Courses
+              </Button>
+            </motion.div>
+          </Link>
         </motion.div>
 
         <motion.div
