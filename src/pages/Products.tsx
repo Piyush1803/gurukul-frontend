@@ -1,78 +1,52 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Plus, Clock, Star } from "lucide-react";
-import { useState } from "react";
+import { useEffect,useState } from "react";
 
 interface Product {
   id: string;
-  name: string;
-  description: string;
+  name: string | null;
+  description: string | null;
   price: number;
-  image: string;
-  category: 'pastries' | 'bread' | 'courses';
+  imageUrl: string;
+  type: 'pastry' | 'bread' | 'course';
+  flavor?: string;
+  quantity?: number;
   rating?: number;
   duration?: string;
 }
 
 const Products = () => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'pastries' | 'bread' | 'courses'>('all');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const products: Product[] = [
-    {
-      id: '1',
-      name: 'Butter Croissant',
-      description: 'Flaky, buttery layers of perfection',
-      price: 3.5,
-      image: '/placeholder.svg',
-      category: 'pastries',
-      rating: 4.9,
-    },
-    {
-      id: '2',
-      name: 'Sourdough Loaf',
-      description: 'Traditional fermented bread with tangy flavor',
-      price: 8.0,
-      image: '/placeholder.svg',
-      category: 'bread',
-      rating: 4.8,
-    },
-    {
-      id: '3',
-      name: 'Chocolate Danish',
-      description: 'Rich chocolate filling in buttery pastry',
-      price: 4.25,
-      image: '/placeholder.svg',
-      category: 'pastries',
-      rating: 4.7,
-    },
-    {
-      id: '4',
-      name: 'Artisan Baguette',
-      description: 'Crispy crust with soft, airy interior',
-      price: 5.5,
-      image: '/placeholder.svg',
-      category: 'bread',
-      rating: 4.9,
-    },
-    {
-      id: '5',
-      name: 'Beginner Baking Course',
-      description: 'Learn the fundamentals of bread and pastry making',
-      price: 150.0,
-      image: '/placeholder.svg',
-      category: 'courses',
-      duration: '4 weeks',
-    },
-    {
-      id: '6',
-      name: 'Advanced Pastry Techniques',
-      description: 'Master complex lamination and decoration skills',
-      price: 350.0,
-      image: '/placeholder.svg',
-      category: 'courses',
-      duration: '8 weeks',
-    },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const categoryMap = {
+          all: 'all',
+          pastries: 'pastry',
+          bread: 'bread',
+          courses: 'course',
+        };
+
+        
+        const response = await fetch(`http://192.168.0.188:3001/product/pastry`);
+        const data = await response.json();
+        
+        setProducts(data.data);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        alert("Error loading products: " + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [activeCategory]);
 
   const categories = [
     { key: 'all' as const, label: 'All Products' },
@@ -81,10 +55,20 @@ const Products = () => {
     { key: 'courses' as const, label: 'Courses' },
   ];
 
-  const filteredProducts =
-    activeCategory === 'all'
+  const filteredProducts = Array.isArray(products)
+  ? activeCategory === 'all'
       ? products
-      : products.filter((product) => product.category === activeCategory);
+      : products.filter((product) => {
+    if (activeCategory === 'pastries') return product.type === 'pastry';
+    if (activeCategory === 'courses') return product.type === 'course';
+    return product.type === activeCategory;
+  })
+  : [];
+ 
+
+
+
+
 
   const handleAddToCart = async (productId: string) => {
     try {
@@ -196,7 +180,7 @@ const Products = () => {
             animate="visible"
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {filteredProducts.map((product) => (
+            {Array.isArray(filteredProducts) && filteredProducts.map((product) => (
               <motion.div
                 key={product.id}
                 variants={itemVariants}
@@ -205,8 +189,8 @@ const Products = () => {
               >
                 <div className="aspect-video bg-gradient-warm relative overflow-hidden">
                   <img
-                    src={product.image}
-                    alt={product.name}
+                    src={product.imageUrl}
+                    alt={product.name ?? product.flavor}
                     className="w-full h-full object-cover"
                   />
                   {product.category === 'courses' && (
@@ -224,7 +208,9 @@ const Products = () => {
                 </div>
 
                 <div className="p-6">
-                  <h3 className="text-xl font-serif font-semibold mb-2">{product.name}</h3>
+                  <h3 className="text-xl font-serif font-semibold mb-2">
+                    {product.name ?? product.flavor}
+                  </h3>
                   <p className="text-muted-foreground mb-4 leading-relaxed">{product.description}</p>
 
                   <div className="flex items-center justify-between">
@@ -263,5 +249,6 @@ const Products = () => {
     </div>
   );
 };
+
 
 export default Products;

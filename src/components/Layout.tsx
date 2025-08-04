@@ -1,18 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navigation } from "@/components/Navigation";
 import { CartModal } from "@/components/CartModal";
 import { LoginModal } from "@/components/LoginModal";
-import { useState } from "react";
 import { useLocation } from "react-router-dom";
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
+import { updateCartItem, removeCartItem } from "@/api/cart";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,41 +13,33 @@ interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const location = useLocation();
 
-  const addToCart = (product: any) => {
-    setCartItems(prev => {
-      const existingItem = prev.find(item => item.id === product.id);
-      if (existingItem) {
-        return prev.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
+  const token = localStorage.getItem("token");
+  const userPayload = token ? JSON.parse(atob(token.split('.')[1])) : null;
+  const userId = localStorage.getItem("userId");
+  const authToken = localStorage.getItem("token") || "";
+
+  const handleUpdateQuantity = async (itemId: string, quantity: number) => {
+    try {
+      await updateCartItem(itemId, quantity, authToken);
+    } catch (error) {
+      console.error("Failed to update quantity", error);
+    }
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
-    setCartItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
+  const handleRemoveItem = async (itemId: string) => {
+    try {
+      await removeCartItem(itemId, authToken);
+    } catch (error) {
+      console.error("Failed to remove item", error);
+    }
   };
-
-  const removeItem = (id: string) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
-  };
-
-  const cartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 }
+    exit: { opacity: 0, y: -20 },
   };
 
   return (
@@ -63,7 +47,7 @@ export const Layout = ({ children }: LayoutProps) => {
       <Navigation
         onCartClick={() => setIsCartOpen(true)}
         onLoginClick={() => setIsLoginOpen(true)}
-        cartItemsCount={cartItemsCount}
+        cartItemsCount={0} // optional: replace with real count via Context later
       />
 
       <AnimatePresence mode="wait">
@@ -75,18 +59,18 @@ export const Layout = ({ children }: LayoutProps) => {
           exit="exit"
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          {React.cloneElement(children as React.ReactElement, { 
-            onAddToCart: addToCart 
-          })}
+          {children}
         </motion.main>
       </AnimatePresence>
 
       <CartModal
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onUpdateQuantity={updateQuantity}
-        onRemoveItem={removeItem}
+        userId={userId}
+        token={token}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemoveItem={handleRemoveItem}
+        
       />
 
       <LoginModal
