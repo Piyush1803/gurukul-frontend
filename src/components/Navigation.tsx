@@ -8,15 +8,19 @@ interface NavigationProps {
   onCartClick: () => void;
   onLoginClick: () => void;
   cartItemsCount?: number;
+  userRole?: string;
 }
 
-export const Navigation = ({ onCartClick, onLoginClick, cartItemsCount = 0 }: NavigationProps) => {
+export const Navigation = ({ onCartClick, onLoginClick, cartItemsCount = 0, userRole = "admin" }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
     { to: "/", label: "Home" },
     { to: "/about", label: "About" },
     { to: "/products", label: "Products" },
+    ...(userRole === "admin"
+      ? [{ to: "/admin", label: "Admin" }]
+      : []),
   ];
 
   return (
@@ -33,8 +37,13 @@ export const Navigation = ({ onCartClick, onLoginClick, cartItemsCount = 0 }: Na
             className="flex items-center space-x-2"
           >
             <NavLink to="/" className="text-2xl font-serif font-bold text-primary">
-              Gurukul bakery
+              Gurukul Bakery
             </NavLink>
+            {userRole === "admin" && (
+              <span className="mt-1 px-2 py-0.5 rounded bg-red-100 text-red-600 text-xs font-semibold">
+                admin
+              </span>
+            )}
           </motion.div>
 
           {/* Desktop Navigation */}

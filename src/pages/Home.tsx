@@ -240,13 +240,15 @@ export const Home = () => {
                 from experienced instructors. Perfect for beginners and advanced bakers alike.
               </p>
               <div>
-                <Button
-                  variant="hero"
-                  size="lg"
-                  className="text-lg px-8 py-3 hover:scale-105 transition-transform duration-200"
-                >
-                  View Courses
-                </Button>
+                <Link to="/courses">
+                  <Button
+                    variant="hero"
+                    size="lg"
+                    className="text-lg px-8 py-3 hover:scale-105 transition-transform duration-200"
+                  >
+                    View Courses
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
