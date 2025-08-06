@@ -128,7 +128,6 @@ const Products = () => {
 
   return (
     <div className="min-h-screen pt-16">
-      {/* Hero Section */}
       <section className="py-20 bg-gradient-hero">
         <div className="container mx-auto px-4 text-center">
           <motion.div
@@ -146,7 +145,6 @@ const Products = () => {
         </div>
       </section>
 
-      {/* Category Filter */}
       <section className="py-12 border-b">
         <div className="container mx-auto px-4">
           <motion.div
@@ -168,7 +166,6 @@ const Products = () => {
         </div>
       </section>
 
-      {/* Products Grid */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           {loading ? (

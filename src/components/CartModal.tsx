@@ -1,65 +1,120 @@
-// CartModal.tsx
+import { useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Minus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { getCartItems } from "@/api/cart";
-import { useEffect } from "react";
 
-interface CartItem {
-  id: string;
+const API_BASE = "http://localhost:3001/cart";
+
+interface RawCartItem {
+  id: number;
+  quantity: number;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    imageUrl: string;
+  };
+}
+
+interface FlattenedCartItem {
+  id: number;
   name: string;
   price: number;
-  quantity: number;
   image: string;
+  quantity: number;
 }
 
 interface CartModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userId: string;
-  token: string;
-  onUpdateQuantity: (id: string, quantity: number) => void;
-  onRemoveItem: (id: string) => void;
 }
 
-export const CartModal = ({
-  isOpen,
-  onClose,
-  userId,
-  token,
-  onUpdateQuantity,
-  onRemoveItem,
-}: CartModalProps) => {
+export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+
+  const getCartItems = async (): Promise<RawCartItem[]> => {
+    if (!userId || !token) throw new Error("Missing credentials");
+
+    const res = await fetch(`${API_BASE}/userCart/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error("Failed to fetch cart items: " + errorText);
+    }
+
+    const contentType = res.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
+      return res.json();
+    } else {
+      throw new Error("Response is not JSON");
+    }
+  };
+
+  const updateCartItem = async (cartItemId: number, quantity: number) => {
+    const res = await fetch(`${API_BASE}/${cartItemId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ quantity }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update cart item");
+    return res.json();
+  };
+
+  const removeCartItem = async (cartItemId: number) => {
+    const res = await fetch(`${API_BASE}/${cartItemId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to remove item from cart");
+    return true;
+  };
+
   const {
-    data: fetchedItems = { items: [], total: 0 },
+    data: rawItems = [],
     isLoading,
     isError,
     error,
     refetch,
   } = useQuery({
     queryKey: ["cart", userId],
-    queryFn: () => getCartItems(userId, token),
-    enabled: isOpen && !userId,
+    queryFn: getCartItems,
+    enabled: !!isOpen && !!userId,
   });
-  console.log("📦 Cart fetchedData:", fetchedItems);
-  const { items: cartItems, total } = fetchedItems;
-   // 👇 YAHAN ye debug code likho
+
   useEffect(() => {
     if (isOpen) {
-      console.log("🟡 Cart Modal Opened - Trying to fetch items...");
       refetch();
     }
   }, [isOpen]);
 
-  console.log("🟢 Cart Items:", fetchedItems);
- 
-  if (isError) {
-    console.error("🔴 Cart Fetch Error:", error);
-  }
+  // 🔁 Transform raw items to flattened structure
+  const items: FlattenedCartItem[] = useMemo(() => {
+    return rawItems.map((item) => ({
+      id: item.id,
+      name: item.product.name,
+      price: item.product.price,
+      image: item.product.imageUrl,
+      quantity: item.quantity,
+    }));
+  }, [rawItems]);
 
- 
-  
+  // 💵 Calculate total manually
+  const total = useMemo(() => {
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }, [items]);
 
   return (
     <AnimatePresence>
@@ -91,7 +146,9 @@ export const CartModal = ({
               </div>
 
               <div className="flex-1 overflow-y-auto p-6">
-                {fetchedItems.length === 0 ? (
+                {isLoading ? (
+                  <p className="text-center">Loading...</p>
+                ) : items.length === 0 ? (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -107,7 +164,7 @@ export const CartModal = ({
                   </motion.div>
                 ) : (
                   <div className="space-y-4">
-                    {fetchedItems.map((item, index) => (
+                    {items.map((item, index) => (
                       <motion.div
                         key={item.id}
                         initial={{ opacity: 0, x: 20 }}
@@ -123,7 +180,7 @@ export const CartModal = ({
                         <div className="flex-1">
                           <h3 className="font-medium">{item.name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            ${item.price.toFixed(2)} each
+                            ₹{item.price.toFixed(2)} each
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -133,9 +190,9 @@ export const CartModal = ({
                             className="h-8 w-8"
                             onClick={async () => {
                               if (item.quantity > 1) {
-                                await onUpdateQuantity(item.id, item.quantity - 1);
+                                await updateCartItem(item.id, item.quantity - 1);
                               } else {
-                                await onRemoveItem(item.id);
+                                await removeCartItem(item.id);
                               }
                               refetch();
                             }}
@@ -150,7 +207,7 @@ export const CartModal = ({
                             size="icon"
                             className="h-8 w-8"
                             onClick={async () => {
-                              await onUpdateQuantity(item.id, item.quantity + 1);
+                              await updateCartItem(item.id, item.quantity + 1);
                               refetch();
                             }}
                           >
@@ -163,7 +220,7 @@ export const CartModal = ({
                 )}
               </div>
 
-              {fetchedItems.length > 0 && typeof total === "number" && (
+              {items.length > 0 && (
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -171,7 +228,7 @@ export const CartModal = ({
                 >
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total:</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                   <Button variant="hero" className="w-full" size="lg">
                     Proceed to Checkout

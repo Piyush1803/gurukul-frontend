@@ -1,18 +1,42 @@
 import { motion } from "framer-motion";
-import { NavLink } from "react-router-dom";
-import { ShoppingCart, User, Menu } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { ShoppingCart, User, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface NavigationProps {
   onCartClick: () => void;
   onLoginClick: () => void;
   cartItemsCount?: number;
-  userRole?: string;
 }
 
-export const Navigation = ({ onCartClick, onLoginClick, cartItemsCount = 0, userRole = "user" }: NavigationProps) => {
+export const Navigation = ({
+  onCartClick,
+  onLoginClick,
+  cartItemsCount = 0,
+}: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("userRole");
+
+    if (token) {
+      setIsLoggedIn(true);
+      setUserRole(role);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsLoggedIn(false);
+    setUserRole(null);
+    navigate("/");
+    window.location.reload();
+  };
 
   const navItems = [
     { to: "/", label: "Home" },
@@ -92,9 +116,16 @@ export const Navigation = ({ onCartClick, onLoginClick, cartItemsCount = 0, user
               )}
             </Button>
 
-            <Button variant="ghost" size="icon" onClick={onLoginClick}>
-              <User className="h-5 w-5" />
-            </Button>
+            {/* Login / Logout Button */}
+            {isLoggedIn ? (
+              <Button variant="ghost" size="icon" onClick={handleLogout}>
+                <LogOut className="h-5 w-5 text-red-500" />
+              </Button>
+            ) : (
+              <Button variant="ghost" size="icon" onClick={onLoginClick}>
+                <User className="h-5 w-5" />
+              </Button>
+            )}
 
             {/* Mobile menu button */}
             <Button
@@ -130,6 +161,14 @@ export const Navigation = ({ onCartClick, onLoginClick, cartItemsCount = 0, user
                   {item.label}
                 </NavLink>
               ))}
+              {isLoggedIn && (
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-3 py-2 rounded-md font-medium text-red-600 hover:bg-red-100"
+                >
+                  Logout
+                </button>
+              )}
             </div>
           </motion.div>
         )}

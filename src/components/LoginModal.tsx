@@ -12,6 +12,7 @@ interface LoginModalProps {
 
 export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   return (
     <AnimatePresence>
@@ -47,110 +48,120 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
 
               {/* Form */}
               <motion.form
- key={isLogin ? "login" : "signup"}
-  initial={{ opacity: 0, x: isLogin ? -20 : 20 }}
-  animate={{ opacity: 1, x: 0 }}
-  className="space-y-4"
-  onSubmit={async (e) => {
-    e.preventDefault();
+                key={isLogin ? "login" : "signup"}
+                initial={{ opacity: 0, x: isLogin ? -20 : 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-4"
+                onSubmit={async (e) => {
+                  e.preventDefault();
 
-    const email = (document.getElementById("email") as HTMLInputElement).value;
-    const password = (document.getElementById("password") as HTMLInputElement).value;
+                  const email = (document.getElementById("email") as HTMLInputElement).value;
+                  const password = (document.getElementById("password") as HTMLInputElement).value;
 
-    if (!email || !password) {
-      alert("Please enter email and password");
-      return;
-    }
+                  if (!email || !password) {
+                    alert("Please enter email and password");
+                    return;
+                  }
 
-    try {
-      if (isLogin) {
-        // ✅ LOGIN request
-        const res = await fetch("http://localhost:3001/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            identifier: email,
-            password,
-          }),
-        });
+                  try {
+                    if (isLogin) {
+                      // ✅ LOGIN request
+                      const res = await fetch("http://localhost:3001/auth/login", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          identifier: email,
+                          password,
+                        }),
+                      });
 
-        if (!res.ok) {
-          alert("Invalid login credentials");
-          return;
-        }
+                      if (!res.ok) {
+                        alert("Invalid login credentials");
+                        return;
+                      }
 
-        const data = await res.json();
-        localStorage.setItem("token", data.access_token);
+                      const data = await res.json();
+                      localStorage.setItem("token", data.access_token);
 
-        const payload = JSON.parse(atob(data.access_token.split(".")[1]));
-        localStorage.setItem("userId", payload.sub);
+                      const payload = JSON.parse(atob(data.access_token.split(".")[1]));
+                      localStorage.setItem("userId", payload.sub);
+                      localStorage.setItem("userRole", payload.role); // Save role
+                      setLoginSuccess(true); // Show success message
 
-        alert("Login successful");
-        onClose();
-        window.location.reload();
-      } else {
-        // ✅ SIGNUP request
-        const username = (document.getElementById("username") as HTMLInputElement).value;
+                      // Close modal after short delay
+                      setTimeout(() => {
+                        onClose();
+                        window.location.reload();
+                      }, 1500);
+                    } else {
+                      // ✅ SIGNUP request
+                      const username = (document.getElementById("username") as HTMLInputElement).value;
 
-        const res = await fetch("http://localhost:3001/user", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username,
-            email,
-            password,
-          }),
-        });
+                      const res = await fetch("http://localhost:3001/user", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          username,
+                          email,
+                          password,
+                        }),
+                      });
 
-        if (!res.ok) {
-          alert("Signup failed");
-          return;
-        }
+                      if (!res.ok) {
+                        alert("Signup failed");
+                        return;
+                      }
 
-        alert("Signup successful! Please login.");
-        setIsLogin(true);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong");
-    }
-  }}
->
-  {!isLogin && (
-  <div>
-    <Label htmlFor="username">Username</Label>
-    <div className="relative">
-      <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-      <Input id="username" type="text" placeholder="Username" className="pl-10" />
-    </div>
-  </div>
-)}
+                      alert("Signup successful! Please login.");
+                      setIsLogin(true);
+                    }
+                  } catch (err) {
+                    console.error(err);
+                    alert("Something went wrong");
+                  }
+                }}
+              >
+                {!isLogin && (
+                  <div>
+                    <Label htmlFor="username">Username</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input id="username" type="text" placeholder="Username" className="pl-10" />
+                    </div>
+                  </div>
+                )}
 
-<div>
-  <Label htmlFor="email">Email</Label>
-  <div className="relative">
-    <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-    <Input id="email" type="email" placeholder="Email" className="pl-10" />
-  </div>
-</div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input id="email" type="email" placeholder="Email" className="pl-10" />
+                  </div>
+                </div>
 
-<div>
-  <Label htmlFor="password">Password</Label>
-  <div className="relative">
-    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-    <Input id="password" type="password" placeholder="Password" className="pl-10" />
-  </div>
-</div>
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input id="password" type="password" placeholder="Password" className="pl-10" />
+                  </div>
+                </div>
 
-<Button type="submit" className="w-full">
-  {isLogin ? "Login" : "Signup"}
-</Button>
-</motion.form>
+                <Button type="submit" className="w-full">
+                  {isLogin ? "Login" : "Signup"}
+                </Button>
+              </motion.form>
 
+              {/* Login success message */}
+              {loginSuccess && (
+                <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-md text-center font-medium">
+                  ✅ Logged in successfully!
+                </div>
+              )}
 
               {/* Toggle */}
               <div className="mt-6 text-center">
@@ -165,16 +176,6 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                   </button>
                 </p>
               </div>
-
-              {/* Note about backend */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="mt-4 p-3 bg-secondary/50 rounded-lg border text-sm text-muted-foreground text-center"
-              >
-                Connect Supabase for full authentication functionality
-              </motion.div>
             </div>
           </motion.div>
         </>
