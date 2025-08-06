@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Home } from "@/pages/Home";
 import { About } from "@/pages/About";
-import  Products  from "@/pages/Products";
+import Products from "@/pages/Products";
 import NotFound from "./pages/NotFound";
 import { Courses } from "@/pages/Courses";
 import Admin from "./pages/Admin";

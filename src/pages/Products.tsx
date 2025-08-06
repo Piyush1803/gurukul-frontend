@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Plus, Clock, Star } from "lucide-react";
-import { useEffect,useState } from "react";
+import { Plus, Star } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface Product {
   id: string;
@@ -9,15 +9,14 @@ interface Product {
   description: string | null;
   price: number;
   imageUrl: string;
-  type: 'pastry' | 'bread' | 'course';
+  type: 'cake' | 'pudding' | 'pastry' | 'donut';
   flavor?: string;
   quantity?: number;
   rating?: number;
-  duration?: string;
 }
 
 const Products = () => {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'pastries' | 'bread' | 'courses'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'cakes' | 'puddings' | 'pastries' | 'donuts'>('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -25,21 +24,34 @@ const Products = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
+        const baseUrl = "http://localhost:3001/product";
         const categoryMap = {
-          all: 'all',
+          all: '',
+          cakes: 'cake',
+          puddings: 'pudding',
           pastries: 'pastry',
-          bread: 'bread',
-          courses: 'course',
+          donuts: 'donut',
         };
 
-        
-        const response = await fetch(`http://192.168.0.188:3001/product/pastry`);
-        const data = await response.json();
-        
-        setProducts(data.data);
-      } catch (err) {
+        const selectedType = categoryMap[activeCategory];
+        const url =
+          activeCategory === 'all'
+            ? `${baseUrl}/all`
+            : `${baseUrl}/all/${selectedType}`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (activeCategory === 'all') {
+          const { cakes = [], puddings = [], pastries = [], donuts = [] } = result.data || {};
+          const allProducts = [...cakes, ...puddings, ...pastries, ...donuts];
+          setProducts(allProducts);
+        } else {
+          setProducts(Array.isArray(result.data) ? result.data : []);
+        }
+      } catch (err: any) {
         console.error("Fetch error:", err);
-        alert("Error loading products: " + err.message);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -50,25 +62,11 @@ const Products = () => {
 
   const categories = [
     { key: 'all' as const, label: 'All Products' },
+    { key: 'cakes' as const, label: 'Cakes' },
+    { key: 'puddings' as const, label: 'Puddings' },
     { key: 'pastries' as const, label: 'Pastries' },
-    { key: 'bread' as const, label: 'Bread' },
-    { key: 'courses' as const, label: 'Courses' },
+    { key: 'donuts' as const, label: 'Donuts' },
   ];
-
-  const filteredProducts = Array.isArray(products)
-  ? activeCategory === 'all'
-      ? products
-      : products.filter((product) => {
-    if (activeCategory === 'pastries') return product.type === 'pastry';
-    if (activeCategory === 'courses') return product.type === 'course';
-    return product.type === activeCategory;
-  })
-  : [];
- 
-
-
-
-
 
   const handleAddToCart = async (productId: string) => {
     try {
@@ -142,7 +140,7 @@ const Products = () => {
               Our Products
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Fresh baked goods and professional courses to satisfy every craving
+              Fresh baked goods made with love!
             </p>
           </motion.div>
         </div>
@@ -173,67 +171,63 @@ const Products = () => {
       {/* Products Grid */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <motion.div
-            key={activeCategory}
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {Array.isArray(filteredProducts) && filteredProducts.map((product) => (
-              <motion.div
-                key={product.id}
-                variants={itemVariants}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-background rounded-2xl shadow-soft hover:shadow-warm transition-all duration-300 overflow-hidden border"
-              >
-                <div className="aspect-video bg-gradient-warm relative overflow-hidden">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name ?? product.flavor}
-                    className="w-full h-full object-cover"
-                  />
-                  {product.category === 'courses' && (
-                    <div className="absolute top-4 left-4 bg-bakery-orange text-foreground px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {product.duration}
-                    </div>
-                  )}
-                  {product.rating && (
-                    <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm text-foreground px-2 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-bakery-gold text-bakery-gold" />
-                      {product.rating}
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-6">
-                  <h3 className="text-xl font-serif font-semibold mb-2">
-                    {product.name ?? product.flavor}
-                  </h3>
-                  <p className="text-muted-foreground mb-4 leading-relaxed">{product.description}</p>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-primary">
-                      ${product.price.toFixed(2)}
-                    </span>
-
-                    <Button
-                      variant="bakery"
-                      size="sm"
-                      onClick={() => handleAddToCart(product.id)}
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add to Cart
-                    </Button>
+          {loading ? (
+            <div className="text-center py-20 text-xl text-muted-foreground">Loading...</div>
+          ) : products.length > 0 ? (
+            <motion.div
+              key={activeCategory}
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {products.map((product) => (
+                <motion.div
+                  key={product.id}
+                  variants={itemVariants}
+                  whileHover={{ y: -10, scale: 1.02 }}
+                  className="bg-background rounded-2xl shadow-soft hover:shadow-warm transition-all duration-300 overflow-hidden border"
+                >
+                  <div className="aspect-video bg-gradient-warm relative overflow-hidden">
+                    <img
+                      src={product.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"}
+                      alt={product.name ?? product.flavor ?? "Product"}
+                      className="w-full h-full object-cover"
+                    />
+                    {product.rating && (
+                      <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm text-foreground px-2 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-bakery-gold text-bakery-gold" />
+                        {product.rating}
+                      </div>
+                    )}
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
 
-          {filteredProducts.length === 0 && (
+                  <div className="p-6">
+                    <h3 className="text-xl font-serif font-semibold mb-2">
+                      {product.name ?? product.flavor}
+                    </h3>
+                    <p className="text-muted-foreground mb-4 leading-relaxed">{product.description}</p>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-primary">
+                        ${product.price.toFixed(2)}
+                      </span>
+
+                      <Button
+                        variant="bakery"
+                        size="sm"
+                        onClick={() => handleAddToCart(product.id)}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add to Cart
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -249,6 +243,5 @@ const Products = () => {
     </div>
   );
 };
-
 
 export default Products;

@@ -11,7 +11,7 @@ interface NavigationProps {
   userRole?: string;
 }
 
-export const Navigation = ({ onCartClick, onLoginClick, cartItemsCount = 0, userRole = "admin" }: NavigationProps) => {
+export const Navigation = ({ onCartClick, onLoginClick, cartItemsCount = 0, userRole = "user" }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [

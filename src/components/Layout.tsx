@@ -15,8 +15,21 @@ export const Layout = ({ children }: LayoutProps) => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const location = useLocation();
 
-  const token = localStorage.getItem("token");
-  const userPayload = token ? JSON.parse(atob(token.split('.')[1])) : null;
+  let user = null;
+  try {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // If JWT, decode the payload part
+      const payload = token.split(".")[1];
+      // Add padding if needed
+      const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64 + "=".repeat((4 - base64.length % 4) % 4);
+      user = JSON.parse(atob(padded));
+    }
+  } catch (err) {
+    user = null;
+  }
+
   const userId = localStorage.getItem("userId");
   const authToken = localStorage.getItem("token") || "";
 
@@ -67,10 +80,10 @@ export const Layout = ({ children }: LayoutProps) => {
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         userId={userId}
-        token={token}
+        token={user}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
-        
+
       />
 
       <LoginModal
