@@ -8,9 +8,10 @@ import { useState } from "react";
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onLoginSuccess?: () => void;
 }
 
-export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
+export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps) => {
   const [isLogin, setIsLogin] = useState(true);
   const [loginSuccess, setLoginSuccess] = useState(false);
 
@@ -93,6 +94,9 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                       // Close modal after short delay
                       setTimeout(() => {
                         onClose();
+                        if (onLoginSuccess) {
+                        onLoginSuccess(); // ✅ refetch cart data
+                      }
                         window.location.reload();
                       }, 1500);
                     } else {

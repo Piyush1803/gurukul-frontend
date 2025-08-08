@@ -1,80 +1,63 @@
+const API_BASE = "http://localhost:3001/cart";
 
-const API_BASE = "/cart";
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found in localStorage");
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+};
 
-export const getCartItems = async (userId: string, token: string) => {
-  const res = await fetch(`http://localhost:3001/cart/${userId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+export const getCartItems = async (): Promise<RawCartItem[]> => {
+  const res = await fetch(`${API_BASE}/userCart`, {
+    headers: getAuthHeaders(),
   });
-
-  const contentType = res.headers.get("Content-Type");
 
   if (!res.ok) {
     const errorText = await res.text();
     throw new Error("Failed to fetch cart items: " + errorText);
   }
-
-  if (contentType && contentType.includes("application/json")) {
-    return res.json();
-  } else {
-    throw new Error("Response is not JSON");
-  }
-};
-export const fetchCartItems = async () => {
-  const token = localStorage.getItem("token"); // or useContext/auth state
-  const res = await fetch("/api/cart", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!res.ok) throw new Error("Failed to fetch cart");
   return res.json();
 };
 
-export const addToCart = async (productId: string, token: string) => {
-  const res = await fetch(API_BASE, {
+export const fetchCartItems = async () => {
+  const res = await fetch(`${API_BASE}/userCart`, {
+    headers: getAuthHeaders(),
+  });
+
+  if (!res.ok) throw new Error(`Failed to fetch cart: ${res.statusText}`);
+  return res.json();
+};
+
+export const addToCart = async (productId: number, quantity: number) => {
+  const res = await fetch(`${API_BASE}/addToCart`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ productId }),
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ productId, quantity }),
   });
 
   if (!res.ok) throw new Error("Failed to add to cart");
-
   return res.json();
 };
 
-export const updateCartItem = async (
-  cartItemId: string,
-  quantity: number,
-  token: string
-) => {
+export const updateCartItem = async (cartItemId: number, quantity: number) => {
   const res = await fetch(`${API_BASE}/${cartItemId}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ quantity }),
   });
 
   if (!res.ok) throw new Error("Failed to update cart item");
-
   return res.json();
 };
 
-export const removeCartItem = async (cartItemId: string, token: string) => {
+export const removeCartItem = async (cartItemId: number) => {
   const res = await fetch(`${API_BASE}/${cartItemId}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!res.ok) throw new Error("Failed to remove item from cart");
-
   return true;
 };

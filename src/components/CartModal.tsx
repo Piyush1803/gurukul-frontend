@@ -3,19 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Minus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-
-const API_BASE = "http://localhost:3001/cart";
-
-interface RawCartItem {
-  id: number;
-  quantity: number;
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    imageUrl: string;
-  };
-}
+import { getUserRoleFromToken } from "@/utils/auth";
+import {
+  getCartItems,
+  updateCartItem,
+  removeCartItem,
+} from "@/api/cart";
 
 interface FlattenedCartItem {
   id: number;
@@ -31,76 +24,33 @@ interface CartModalProps {
 }
 
 export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
-
-  const getCartItems = async (): Promise<RawCartItem[]> => {
-    if (!userId || !token) throw new Error("Missing credentials");
-
-    const res = await fetch(`${API_BASE}/userCart/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error("Failed to fetch cart items: " + errorText);
+  // Log role when opening modal
+  useEffect(() => {
+    if (isOpen) {
+      const role = getUserRoleFromToken();
+      console.log("User Role:", role);
     }
+  }, [isOpen]);
 
-    const contentType = res.headers.get("Content-Type");
-    if (contentType && contentType.includes("application/json")) {
-      return res.json();
-    } else {
-      throw new Error("Response is not JSON");
-    }
-  };
-
-  const updateCartItem = async (cartItemId: number, quantity: number) => {
-    const res = await fetch(`${API_BASE}/${cartItemId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ quantity }),
-    });
-
-    if (!res.ok) throw new Error("Failed to update cart item");
-    return res.json();
-  };
-
-  const removeCartItem = async (cartItemId: number) => {
-    const res = await fetch(`${API_BASE}/${cartItemId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!res.ok) throw new Error("Failed to remove item from cart");
-    return true;
-  };
-
+  // Fetch cart items from API
   const {
     data: rawItems = [],
     isLoading,
-    isError,
-    error,
     refetch,
   } = useQuery({
-    queryKey: ["cart", userId],
+    queryKey: ["cart"],
     queryFn: getCartItems,
-    enabled: !!isOpen && !!userId,
+    enabled: isOpen,
   });
 
+  // Refetch cart whenever modal is opened
   useEffect(() => {
     if (isOpen) {
       refetch();
     }
-  }, [isOpen]);
+  }, [isOpen, refetch]);
 
-  // 🔁 Transform raw items to flattened structure
+  // Flatten data for UI
   const items: FlattenedCartItem[] = useMemo(() => {
     return rawItems.map((item) => ({
       id: item.id,
@@ -111,15 +61,16 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
     }));
   }, [rawItems]);
 
-  // 💵 Calculate total manually
-  const total = useMemo(() => {
-    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  }, [items]);
+  const total = useMemo(
+    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [items]
+  );
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -127,6 +78,8 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
             onClick={onClose}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
           />
+
+          {/* Cart panel */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -135,6 +88,7 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
             className="fixed right-0 top-0 h-full w-full max-w-md bg-background shadow-warm z-50 overflow-hidden"
           >
             <div className="flex flex-col h-full">
+              {/* Header */}
               <div className="flex items-center justify-between p-6 border-b">
                 <h2 className="text-2xl font-serif font-semibold flex items-center gap-2">
                   <ShoppingBag className="h-6 w-6" />
@@ -145,6 +99,7 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
                 </Button>
               </div>
 
+              {/* Items */}
               <div className="flex-1 overflow-y-auto p-6">
                 {isLoading ? (
                   <p className="text-center">Loading...</p>
@@ -220,6 +175,7 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
                 )}
               </div>
 
+              {/* Footer */}
               {items.length > 0 && (
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}

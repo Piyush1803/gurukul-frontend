@@ -5,6 +5,8 @@ import { CartModal } from "@/components/CartModal";
 import { LoginModal } from "@/components/LoginModal";
 import { useLocation } from "react-router-dom";
 import { updateCartItem, removeCartItem } from "@/api/cart";
+import { useQuery } from "@tanstack/react-query";
+import { getCartItems } from "@/api/cart";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -32,6 +34,13 @@ export const Layout = ({ children }: LayoutProps) => {
 
   const userId = localStorage.getItem("userId");
   const authToken = localStorage.getItem("token") || "";
+
+  const { data: cartItems, refetch } = useQuery({
+  queryKey: ["cartItems", userId],
+  queryFn: () => getCartItems(userId || "", authToken),
+  enabled: !!userId, // Don't run until userId is available
+});
+
 
   const handleUpdateQuantity = async (itemId: string, quantity: number) => {
     try {
@@ -79,16 +88,17 @@ export const Layout = ({ children }: LayoutProps) => {
       <CartModal
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        userId={userId}
+        
         token={user}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
-
+        items={cartItems || []}
       />
 
       <LoginModal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
+        onLoginSuccess={refetch}
       />
     </div>
   );
