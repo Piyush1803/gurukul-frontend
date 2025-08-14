@@ -4,11 +4,13 @@ import { X, Plus, Minus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getUserRoleFromToken } from "@/utils/auth";
+
 import {
   getCartItems,
   updateCartItem,
   removeCartItem,
 } from "@/api/cart";
+import { useNavigate } from "react-router-dom";
 
 interface FlattenedCartItem {
   id: number;
@@ -24,6 +26,7 @@ interface CartModalProps {
 }
 
 export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
+  const navigate = useNavigate(); 
   // Log role when opening modal
   useEffect(() => {
     if (isOpen) {
@@ -186,7 +189,10 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
                     <span>Total:</span>
                     <span>₹{total.toFixed(2)}</span>
                   </div>
-                  <Button variant="hero" className="w-full" size="lg">
+                  <Button variant="hero" className="w-full" size="lg"  onClick={() => {
+                      onClose(); // close modal
+                      navigate("/checkout"); // ✅ Step 3: Go to checkout
+                    }}>
                     Proceed to Checkout
                   </Button>
                 </motion.div>
