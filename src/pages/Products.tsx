@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Plus, Star } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useCart } from "@/hooks/use-cart";
 
 interface Product {
   id: string;
@@ -19,6 +20,7 @@ const Products = () => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'cakes' | 'puddings' | 'pastries' | 'donuts'>('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const { addItem } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -68,40 +70,18 @@ const Products = () => {
     { key: 'donuts' as const, label: 'Donuts' },
   ];
 
-  const handleAddToCart = async (productId: string) => {
-    try {
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
-
-      if (!token || !userId) {
-        alert('Please login first.');
-        return;
-      }
-
-      const response = await fetch('http://localhost:3001/cart/addToCart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId,
-          productId,
-          quantity: 1,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to add to cart');
-      }
-
-      alert('✅ Added to cart!');
-    } catch (err: any) {
-      console.error('Add to cart error:', err.message);
-      alert('❌ Something went wrong: ' + err.message);
-    }
+  const handleAddToCart = (productId: string) => {
+    const product = products.find((p) => p.id === productId);
+    if (!product) return;
+    addItem(
+      {
+        id: product.id,
+        name: product.name ?? product.flavor ?? "Item",
+        price: product.price,
+        image: product.imageUrl,
+      },
+      1
+    );
   };
 
   const containerVariants = {
@@ -206,9 +186,7 @@ const Products = () => {
                     <p className="text-muted-foreground mb-4 leading-relaxed">{product.description}</p>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-primary">
-                        ${product.price.toFixed(2)}
-                      </span>
+                      <span className="text-2xl font-bold text-primary">₹{product.price.toFixed(2)}</span>
 
                       <Button
                         variant="bakery"

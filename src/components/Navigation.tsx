@@ -39,14 +39,14 @@ export const Navigation = ({
     window.location.reload();
   };
 
-const navItems = [
-  { to: "home", label: "Home", type: "scroll" },
-  { to: "about", label: "About", type: "scroll" },
-  { to: "products", label: "Products", type: "scroll" },
-  ...(userRole === "admin"
-    ? [{ to: "/admin", label: "Admin", type: "route" }]
-    : []),
-];
+  const navItems = [
+    { to: "home", label: "Home", type: "scroll" },
+    { to: "about", label: "About", type: "scroll" },
+    { to: "products", label: "Products", type: "scroll" },
+    ...(userRole === "admin"
+      ? [{ to: "/admin", label: "Admin", type: "route" }]
+      : []),
+  ];
 
 
 
@@ -79,29 +79,29 @@ const navItems = [
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) =>
-  item.type === "scroll" ? (
-    <ScrollLink
-      key={item.to}
-      to={item.to}
-      smooth={true}
-      duration={600}
-      spy={true}
-      offset={-70}
-      className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
-      activeClass="text-primary"
-    >
-      {item.label}
-    </ScrollLink>
-  ) : (
-    <NavLink
-      key={item.to}
-      to={item.to}
-      className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
-    >
-      {item.label}
-    </NavLink>
-  )
-)}
+              item.type === "scroll" ? (
+                <ScrollLink
+                  key={item.to}
+                  to={item.to}
+                  smooth={true}
+                  duration={600}
+                  spy={true}
+                  offset={-70}
+                  className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
+                  activeClass="text-primary"
+                >
+                  {item.label}
+                </ScrollLink>
+              ) : (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
+                >
+                  {item.label}
+                </NavLink>
+              )
+            )}
 
 
           </div>
@@ -157,31 +157,31 @@ const navItems = [
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden border-t bg-background/95 backdrop-blur-sm"
           >
-<div className="px-4 py-4 flex flex-col space-y-2">
-{navItems.map((item) =>
-  item.type === "scroll" ? (
-    <ScrollLink
-      key={item.to}
-      to={item.to}
-      smooth={true}
-      duration={600}
-      spy={true}
-      offset={-70}
-      className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
-      activeClass="text-primary"
-    >
-      {item.label}
-    </ScrollLink>
-  ) : (
-    <NavLink
-      key={item.to}
-      to={item.to}
-      className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
-    >
-      {item.label}
-    </NavLink>
-  )
-)}
+            <div className="px-4 py-4 flex flex-col space-y-2">
+              {navItems.map((item) =>
+                item.type === "scroll" ? (
+                  <ScrollLink
+                    key={item.to}
+                    to={item.to}
+                    smooth={true}
+                    duration={600}
+                    spy={true}
+                    offset={-70}
+                    className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
+                    activeClass="text-primary"
+                  >
+                    {item.label}
+                  </ScrollLink>
+                ) : (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
+                  >
+                    {item.label}
+                  </NavLink>
+                )
+              )}
 
 
 

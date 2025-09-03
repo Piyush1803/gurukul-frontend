@@ -6,25 +6,32 @@
 
 @layer base {
   :root {
-    --background: 33 100% 96.5%; /* Cream white */
-    --foreground: 25 47% 15%; /* Dark brown */
+    /* Base - crisper, white canvas */
+    --background: 0 0% 100%;
+    /* Pure white */
+    --foreground: 25 47% 12%;
+    /* Deeper brown for contrast */
 
-    --card: 33 100% 98%;
-    --card-foreground: 25 47% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 25 47% 12%;
 
-    --popover: 33 100% 98%;
-    --popover-foreground: 25 47% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 47% 12%;
 
-    --primary: 25 95% 39%; /* Warm brown */
-    --primary-foreground: 33 100% 96.5%;
+    /* Brand - slightly richer primary, more vibrant accent */
+    --primary: 25 85% 38%;
+    /* Rich warm brown */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 33 50% 88%; /* Light cream */
+    --secondary: 0 0% 98%;
+    /* Light neutral */
     --secondary-foreground: 25 47% 15%;
 
-    --muted: 33 30% 92%;
-    --muted-foreground: 25 20% 45%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 25 18% 40%;
 
-    --accent: 25 95% 65%; /* Light orange */
+    --accent: 43 96% 56%;
+    /* Vibrant gold */
     --accent-foreground: 25 47% 15%;
 
     --destructive: 0 84.2% 60.2%;
@@ -32,23 +39,23 @@
 
     --border: 33 25% 85%;
     --input: 33 25% 90%;
-    --ring: 25 95% 39%;
+    --ring: 25 85% 38%;
 
     /* Bakery-specific tokens */
-    --bakery-cream: 33 100% 96.5%;
-    --bakery-brown: 25 95% 39%;
-    --bakery-orange: 25 95% 65%;
+    --bakery-cream: 0 0% 100%;
+    --bakery-brown: 25 85% 38%;
+    --bakery-orange: 25 90% 60%;
     --bakery-gold: 43 96% 56%;
-    
+
     /* Gradients */
-    --gradient-warm: linear-gradient(135deg, hsl(33 100% 96.5%), hsl(33 50% 88%));
-    --gradient-primary: linear-gradient(135deg, hsl(25 95% 39%), hsl(25 95% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(33 100% 96.5%) 0%, hsl(33 50% 88%) 50%, hsl(25 95% 65%) 100%);
-    
+    --gradient-warm: linear-gradient(135deg, hsl(0 0% 100%), hsl(0 0% 96%));
+    --gradient-primary: linear-gradient(135deg, hsl(25 85% 38%), hsl(43 96% 56%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(0 0% 98%) 50%, hsl(43 96% 56% / 0.16) 100%);
+
     /* Shadows */
-    --shadow-soft: 0 4px 20px hsl(25 95% 39% / 0.1);
-    --shadow-warm: 0 8px 30px hsl(25 95% 39% / 0.15);
-    --shadow-glow: 0 0 40px hsl(25 95% 65% / 0.3);
+    --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.06);
+    --shadow-warm: 0 8px 30px hsl(0 0% 0% / 0.08);
+    --shadow-glow: 0 0 40px hsl(43 96% 56% / 0.35);
 
     --radius: 0.75rem;
 

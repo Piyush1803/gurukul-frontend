@@ -85,6 +85,9 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
                       const data = await res.json();
                       localStorage.setItem("token", data.access_token);
+                      // 15-minute token expiry (frontend-side)
+                      const expiresAt = Date.now() + 15 * 60 * 1000;
+                      localStorage.setItem("tokenExpiry", String(expiresAt));
 
                       const payload = JSON.parse(atob(data.access_token.split(".")[1]));
                       localStorage.setItem("userId", payload.sub);
@@ -95,45 +98,45 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                       setTimeout(() => {
                         onClose();
                         if (onLoginSuccess) {
-                        onLoginSuccess(); // ✅ refetch cart data
-                      }
+                          onLoginSuccess(); // ✅ refetch cart data
+                        }
                         window.location.reload();
                       }, 1500);
                     } else {
                       // ✅ SIGNUP request
-// ✅ SIGNUP request
-const firstName = (document.getElementById("firstName") as HTMLInputElement).value;
-const lastName = (document.getElementById("lastName") as HTMLInputElement)?.value || "";
-const userName = (document.getElementById("userName") as HTMLInputElement)?.value || "";
-const email = (document.getElementById("email") as HTMLInputElement).value;
-const password = (document.getElementById("password") as HTMLInputElement).value;
-const phoneNumber = (document.getElementById("phoneNumber") as HTMLInputElement).value;
-const address = (document.getElementById("address") as HTMLInputElement).value;
+                      // ✅ SIGNUP request
+                      const firstName = (document.getElementById("firstName") as HTMLInputElement).value;
+                      const lastName = (document.getElementById("lastName") as HTMLInputElement)?.value || "";
+                      const userName = (document.getElementById("userName") as HTMLInputElement)?.value || "";
+                      const email = (document.getElementById("email") as HTMLInputElement).value;
+                      const password = (document.getElementById("password") as HTMLInputElement).value;
+                      const phoneNumber = (document.getElementById("phoneNumber") as HTMLInputElement).value;
+                      const address = (document.getElementById("address") as HTMLInputElement).value;
 
-const res = await fetch("http://localhost:3001/users/registerUser", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    firstName,
-    lastName,
-    userName,
-    email,
-    password,
-    phoneNumber,
-    address,
-  }),
-});
+                      const res = await fetch("http://localhost:3001/users/registerUser", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          firstName,
+                          lastName,
+                          userName,
+                          email,
+                          password,
+                          phoneNumber,
+                          address,
+                        }),
+                      });
 
-const data = await res.json();
-if (!res.ok) {
-  alert(data.message || "Signup failed");
-  return;
-}
+                      const data = await res.json();
+                      if (!res.ok) {
+                        alert(data.message || "Signup failed");
+                        return;
+                      }
 
-alert("Signup successful! Please login.");
-setIsLogin(true);
+                      alert("Signup successful! Please login.");
+                      setIsLogin(true);
 
 
                       if (!res.ok) {
@@ -175,7 +178,7 @@ setIsLogin(true);
                     <Input id="password" type="password" placeholder="Password" className="pl-10" />
                   </div>
                 </div>
-                
+
 
                 <Button type="submit" className="w-full">
                   {isLogin ? "Login" : "Signup"}

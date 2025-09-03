@@ -2,23 +2,8 @@ import { useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Minus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { getUserRoleFromToken } from "@/utils/auth";
-
-import {
-  getCartItems,
-  updateCartItem,
-  removeCartItem,
-} from "@/api/cart";
 import { useNavigate } from "react-router-dom";
-
-interface FlattenedCartItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-}
+import { useCart } from "@/hooks/use-cart";
 
 interface CartModalProps {
   isOpen: boolean;
@@ -26,48 +11,8 @@ interface CartModalProps {
 }
 
 export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
-  const navigate = useNavigate(); 
-  // Log role when opening modal
-  useEffect(() => {
-    if (isOpen) {
-      const role = getUserRoleFromToken();
-      console.log("User Role:", role);
-    }
-  }, [isOpen]);
-
-  // Fetch cart items from API
-  const {
-    data: rawItems = [],
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["cart"],
-    queryFn: getCartItems,
-    enabled: isOpen,
-  });
-
-  // Refetch cart whenever modal is opened
-  useEffect(() => {
-    if (isOpen) {
-      refetch();
-    }
-  }, [isOpen, refetch]);
-
-  // Flatten data for UI
-  const items: FlattenedCartItem[] = useMemo(() => {
-    return rawItems.map((item) => ({
-      id: item.id,
-      name: item.product.name,
-      price: item.product.price,
-      image: item.product.imageUrl,
-      quantity: item.quantity,
-    }));
-  }, [rawItems]);
-
-  const total = useMemo(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [items]
-  );
+  const navigate = useNavigate();
+  const { items, subtotal, updateQuantity, removeItem } = useCart();
 
   return (
     <AnimatePresence>
@@ -104,9 +49,7 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
 
               {/* Items */}
               <div className="flex-1 overflow-y-auto p-6">
-                {isLoading ? (
-                  <p className="text-center">Loading...</p>
-                ) : items.length === 0 ? (
+                {items.length === 0 ? (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -146,13 +89,12 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={async () => {
+                            onClick={() => {
                               if (item.quantity > 1) {
-                                await updateCartItem(item.id, item.quantity - 1);
+                                updateQuantity(item.id, item.quantity - 1);
                               } else {
-                                await removeCartItem(item.id);
+                                removeItem(item.id);
                               }
-                              refetch();
                             }}
                           >
                             <Minus className="h-3 w-3" />
@@ -164,10 +106,7 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={async () => {
-                              await updateCartItem(item.id, item.quantity + 1);
-                              refetch();
-                            }}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -187,12 +126,22 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
                 >
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total:</span>
-                    <span>₹{total.toFixed(2)}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                   </div>
-                  <Button variant="hero" className="w-full" size="lg"  onClick={() => {
-                      onClose(); // close modal
-                      navigate("/checkout"); // ✅ Step 3: Go to checkout
-                    }}>
+                  <Button
+                    variant="hero"
+                    className="w-full"
+                    size="lg"
+                    onClick={() => {
+                      const token = localStorage.getItem("token");
+                      onClose();
+                      if (!token) {
+                        navigate("/products", { state: { openLogin: true } });
+                        return;
+                      }
+                      navigate("/checkout");
+                    }}
+                  >
                     Proceed to Checkout
                   </Button>
                 </motion.div>
