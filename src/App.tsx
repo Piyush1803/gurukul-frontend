@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import { Courses } from "@/pages/Courses";
 import Admin from "./pages/Admin";
 import Checkout from "./pages/Checkout";
+import { LandingPage } from "@/pages/LandingPage";
 
 const queryClient = new QueryClient();
 
@@ -20,17 +21,23 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
+        <Routes>
+          {/* ✅ Layout applied only for main site pages */}
+          <Route element={<Layout />}>
+            <Route path="/home" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/products" element={<Products />} />
             <Route path="/courses" element={<Courses />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="*" element={<NotFound />} />
             <Route path="/checkout" element={<Checkout />} />
-          </Routes>
-        </Layout>
+            <Route path="/" element={<LandingPage />} />
+          </Route>
+
+          {/* ✅ Admin page separate (no Layout) */}
+          <Route path="/admin" element={<Admin />} />
+
+          {/* ✅ Not found route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

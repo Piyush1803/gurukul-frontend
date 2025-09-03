@@ -101,19 +101,40 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                       }, 1500);
                     } else {
                       // ✅ SIGNUP request
-                      const username = (document.getElementById("username") as HTMLInputElement).value;
+// ✅ SIGNUP request
+const firstName = (document.getElementById("firstName") as HTMLInputElement).value;
+const lastName = (document.getElementById("lastName") as HTMLInputElement)?.value || "";
+const userName = (document.getElementById("userName") as HTMLInputElement)?.value || "";
+const email = (document.getElementById("email") as HTMLInputElement).value;
+const password = (document.getElementById("password") as HTMLInputElement).value;
+const phoneNumber = (document.getElementById("phoneNumber") as HTMLInputElement).value;
+const address = (document.getElementById("address") as HTMLInputElement).value;
 
-                      const res = await fetch("http://localhost:3001/user", {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                          username,
-                          email,
-                          password,
-                        }),
-                      });
+const res = await fetch("http://localhost:3001/users/registerUser", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    firstName,
+    lastName,
+    userName,
+    email,
+    password,
+    phoneNumber,
+    address,
+  }),
+});
+
+const data = await res.json();
+if (!res.ok) {
+  alert(data.message || "Signup failed");
+  return;
+}
+
+alert("Signup successful! Please login.");
+setIsLogin(true);
+
 
                       if (!res.ok) {
                         alert("Signup failed");
@@ -154,6 +175,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                     <Input id="password" type="password" placeholder="Password" className="pl-10" />
                   </div>
                 </div>
+                
 
                 <Button type="submit" className="w-full">
                   {isLogin ? "Login" : "Signup"}

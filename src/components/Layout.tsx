@@ -8,11 +8,11 @@ import { updateCartItem, removeCartItem } from "@/api/cart";
 import { useQuery } from "@tanstack/react-query";
 import { getCartItems } from "@/api/cart";
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
+import { Outlet } from "react-router-dom";
 
-export const Layout = ({ children }: LayoutProps) => {
+// No props needed anymore
+export const Layout = () => {
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const location = useLocation();
@@ -73,16 +73,17 @@ export const Layout = ({ children }: LayoutProps) => {
       />
 
       <AnimatePresence mode="wait">
-        <motion.main
-          key={location.pathname}
-          variants={pageVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-        >
-          {children}
-        </motion.main>
+<motion.main
+  key={location.pathname}
+  variants={pageVariants}
+  initial="initial"
+  animate="animate"
+  exit="exit"
+  transition={{ duration: 0.3, ease: "easeInOut" }}
+>
+  <Outlet />   {/* 👈 Renders Home, About, Products, etc. */}
+</motion.main>
+
       </AnimatePresence>
 
       <CartModal
