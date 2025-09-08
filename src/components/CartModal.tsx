@@ -1,37 +1,24 @@
+import { useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Minus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
+import { useNavigate } from "react-router-dom";
+import { useCart } from "@/hooks/use-cart";
 
 interface CartModalProps {
   isOpen: boolean;
   onClose: () => void;
-  items: CartItem[];
-  onUpdateQuantity: (id: string, quantity: number) => void;
-  onRemoveItem: (id: string) => void;
 }
 
-export const CartModal = ({ 
-  isOpen, 
-  onClose, 
-  items, 
-  onUpdateQuantity, 
-  onRemoveItem 
-}: CartModalProps) => {
-  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
+  const navigate = useNavigate();
+  const { items, subtotal, updateQuantity, removeItem } = useCart();
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -40,7 +27,7 @@ export const CartModal = ({
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
           />
 
-          {/* Modal */}
+          {/* Cart panel */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -60,7 +47,7 @@ export const CartModal = ({
                 </Button>
               </div>
 
-              {/* Content */}
+              {/* Items */}
               <div className="flex-1 overflow-y-auto p-6">
                 {items.length === 0 ? (
                   <motion.div
@@ -69,7 +56,9 @@ export const CartModal = ({
                     className="text-center py-12"
                   >
                     <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground text-lg">Your cart is empty</p>
+                    <p className="text-muted-foreground text-lg">
+                      Your cart is empty
+                    </p>
                     <p className="text-sm text-muted-foreground mt-2">
                       Add some delicious items to get started!
                     </p>
@@ -89,37 +78,35 @@ export const CartModal = ({
                           alt={item.name}
                           className="w-16 h-16 rounded-lg object-cover"
                         />
-                        
                         <div className="flex-1">
                           <h3 className="font-medium">{item.name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            ${item.price.toFixed(2)} each
+                            ₹{item.price.toFixed(2)} each
                           </p>
                         </div>
-
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => 
-                              item.quantity > 1 
-                                ? onUpdateQuantity(item.id, item.quantity - 1)
-                                : onRemoveItem(item.id)
-                            }
+                            onClick={() => {
+                              if (item.quantity > 1) {
+                                updateQuantity(item.id, item.quantity - 1);
+                              } else {
+                                removeItem(item.id);
+                              }
+                            }}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          
                           <span className="w-8 text-center font-medium">
                             {item.quantity}
                           </span>
-                          
                           <Button
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -139,10 +126,22 @@ export const CartModal = ({
                 >
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total:</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                   </div>
-                  
-                  <Button variant="hero" className="w-full" size="lg">
+                  <Button
+                    variant="hero"
+                    className="w-full"
+                    size="lg"
+                    onClick={() => {
+                      const token = localStorage.getItem("token");
+                      onClose();
+                      if (!token) {
+                        navigate("/products", { state: { openLogin: true } });
+                        return;
+                      }
+                      navigate("/checkout");
+                    }}
+                  >
                     Proceed to Checkout
                   </Button>
                 </motion.div>

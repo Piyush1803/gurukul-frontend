@@ -8,10 +8,12 @@ import { useState } from "react";
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onLoginSuccess?: () => void;
 }
 
-export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
+export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   return (
     <AnimatePresence>
@@ -51,72 +53,144 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 initial={{ opacity: 0, x: isLogin ? -20 : 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="space-y-4"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+
+                  const email = (document.getElementById("email") as HTMLInputElement).value;
+                  const password = (document.getElementById("password") as HTMLInputElement).value;
+
+                  if (!email || !password) {
+                    alert("Please enter email and password");
+                    return;
+                  }
+
+                  try {
+                    if (isLogin) {
+                      // ✅ LOGIN request
+                      const res = await fetch("http://localhost:3001/auth/login", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          identifier: email,
+                          password,
+                        }),
+                      });
+
+                      if (!res.ok) {
+                        alert("Invalid login credentials");
+                        return;
+                      }
+
+                      const data = await res.json();
+                      localStorage.setItem("token", data.access_token);
+                      // 15-minute token expiry (frontend-side)
+                      const expiresAt = Date.now() + 15 * 60 * 1000;
+                      localStorage.setItem("tokenExpiry", String(expiresAt));
+
+                      const payload = JSON.parse(atob(data.access_token.split(".")[1]));
+                      localStorage.setItem("userId", payload.sub);
+                      localStorage.setItem("userRole", payload.role); // Save role
+                      setLoginSuccess(true); // Show success message
+
+                      // Close modal after short delay
+                      setTimeout(() => {
+                        onClose();
+                        if (onLoginSuccess) {
+                          onLoginSuccess(); // ✅ refetch cart data
+                        }
+                        window.location.reload();
+                      }, 1500);
+                    } else {
+                      // ✅ SIGNUP request
+                      // ✅ SIGNUP request
+                      const firstName = (document.getElementById("firstName") as HTMLInputElement).value;
+                      const lastName = (document.getElementById("lastName") as HTMLInputElement)?.value || "";
+                      const userName = (document.getElementById("userName") as HTMLInputElement)?.value || "";
+                      const email = (document.getElementById("email") as HTMLInputElement).value;
+                      const password = (document.getElementById("password") as HTMLInputElement).value;
+                      const phoneNumber = (document.getElementById("phoneNumber") as HTMLInputElement).value;
+                      const address = (document.getElementById("address") as HTMLInputElement).value;
+
+                      const res = await fetch("http://localhost:3001/users/registerUser", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          firstName,
+                          lastName,
+                          userName,
+                          email,
+                          password,
+                          phoneNumber,
+                          address,
+                        }),
+                      });
+
+                      const data = await res.json();
+                      if (!res.ok) {
+                        alert(data.message || "Signup failed");
+                        return;
+                      }
+
+                      alert("Signup successful! Please login.");
+                      setIsLogin(true);
+
+
+                      if (!res.ok) {
+                        alert("Signup failed");
+                        return;
+                      }
+
+                      alert("Signup successful! Please login.");
+                      setIsLogin(true);
+                    }
+                  } catch (err) {
+                    console.error(err);
+                    alert("Something went wrong");
+                  }
+                }}
               >
                 {!isLogin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Full Name
-                    </Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      className="transition-all duration-300 focus:shadow-soft"
-                    />
+                  <div>
+                    <Label htmlFor="username">Username</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input id="username" type="text" placeholder="Username" className="pl-10" />
+                    </div>
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    className="transition-all duration-300 focus:shadow-soft"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="flex items-center gap-2">
-                    <Lock className="h-4 w-4" />
-                    Password
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    className="transition-all duration-300 focus:shadow-soft"
-                  />
-                </div>
-
-                {!isLogin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="flex items-center gap-2">
-                      <Lock className="h-4 w-4" />
-                      Confirm Password
-                    </Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="Confirm your password"
-                      className="transition-all duration-300 focus:shadow-soft"
-                    />
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input id="email" type="email" placeholder="Email" className="pl-10" />
                   </div>
-                )}
+                </div>
 
-                <Button 
-                  type="submit" 
-                  variant="hero" 
-                  className="w-full" 
-                  size="lg"
-                >
-                  {isLogin ? "Sign In" : "Create Account"}
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input id="password" type="password" placeholder="Password" className="pl-10" />
+                  </div>
+                </div>
+
+
+                <Button type="submit" className="w-full">
+                  {isLogin ? "Login" : "Signup"}
                 </Button>
               </motion.form>
+
+              {/* Login success message */}
+              {loginSuccess && (
+                <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-md text-center font-medium">
+                  ✅ Logged in successfully!
+                </div>
+              )}
 
               {/* Toggle */}
               <div className="mt-6 text-center">
@@ -131,16 +205,6 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                   </button>
                 </p>
               </div>
-
-              {/* Note about backend */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="mt-4 p-3 bg-secondary/50 rounded-lg border text-sm text-muted-foreground text-center"
-              >
-                Connect Supabase for full authentication functionality
-              </motion.div>
             </div>
           </motion.div>
         </>
