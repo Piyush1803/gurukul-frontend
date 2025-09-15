@@ -10,14 +10,14 @@ interface Product {
   description: string | null;
   price: number;
   imageUrl: string;
-  type: 'cake' | 'pudding' | 'pastry' | 'donut';
+  type: 'deliciousCake' | 'dryCake' | 'cupCake' | 'pudding' | 'pastry' | 'donut';
   flavor?: string;
   quantity?: number;
   rating?: number;
 }
 
 const Products = () => {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'cakes' | 'puddings' | 'pastries' | 'donuts'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'deliciousCakes' | 'dryCakes' | 'cupCakes' | 'puddings' | 'pastries' | 'donuts'>('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const { addItem } = useCart();
@@ -29,7 +29,9 @@ const Products = () => {
         const baseUrl = "http://localhost:3001/product";
         const categoryMap = {
           all: '',
-          cakes: 'cake',
+          deliciousCakes: 'deliciousCake',
+          dryCakes: 'dryCake',
+          cupCakes: 'cupCake',
           puddings: 'pudding',
           pastries: 'pastry',
           donuts: 'donut',
@@ -45,8 +47,15 @@ const Products = () => {
         const result = await response.json();
 
         if (activeCategory === 'all') {
-          const { cakes = [], puddings = [], pastries = [], donuts = [] } = result.data || {};
-          const allProducts = [...cakes, ...puddings, ...pastries, ...donuts];
+          const { 
+            deliciousCakes = [], 
+            dryCakes = [], 
+            cupCakes = [], 
+            puddings = [], 
+            pastries = [], 
+            donuts = [] 
+          } = result.data || {};
+          const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...puddings, ...pastries, ...donuts];
           setProducts(allProducts);
         } else {
           setProducts(Array.isArray(result.data) ? result.data : []);
@@ -64,10 +73,12 @@ const Products = () => {
 
   const categories = [
     { key: 'all' as const, label: 'All Products' },
-    { key: 'cakes' as const, label: 'Cakes' },
-    { key: 'puddings' as const, label: 'Puddings' },
-    { key: 'pastries' as const, label: 'Pastries' },
+    { key: 'deliciousCakes' as const, label: 'Delicious Cakes' },
+    { key: 'dryCakes' as const, label: 'Dry Cakes' },
+    { key: 'cupCakes' as const, label: 'Cup Cakes' },
     { key: 'donuts' as const, label: 'Donuts' },
+    { key: 'pastries' as const, label: 'Pastries' },
+    { key: 'puddings' as const, label: 'Puddings' },
   ];
 
   const handleAddToCart = (productId: string) => {
