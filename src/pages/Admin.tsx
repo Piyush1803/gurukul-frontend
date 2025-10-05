@@ -14,7 +14,7 @@ interface Product {
     description: string;
     price: number;
     imageUrl: string;
-    type: 'deliciousCake' | 'dryCake' | 'cupCake' | 'pudding' | 'pastry' | 'donut';
+    type: 'deliciousCake' | 'dryCake' | 'cupCake' | 'brownie' | 'cookie' | 'mousse' | 'donut';
     flavor?: string;
     quantity?: number;
     layers?: number;
@@ -27,8 +27,9 @@ const productTypes = [
     { value: 'dryCake', label: 'Dry Cake' },
     { value: 'cupCake', label: 'Cup Cake' },
     { value: 'donut', label: 'Donut' },
-    { value: 'pastry', label: 'Pastry' },
-    { value: 'pudding', label: 'Pudding' },
+    { value: 'brownie', label: 'Brownie' },
+    { value: 'cookie', label: 'Cookie' },
+    { value: 'mousse', label: 'Mousse' },
 ];
 
 const floatingIcons = [
@@ -85,11 +86,12 @@ const Admin: React.FC = () => {
                         deliciousCakes = [], 
                         dryCakes = [], 
                         cupCakes = [], 
-                        puddings = [], 
-                        pastries = [], 
+                        brownies = [], 
+                        cookies = [], 
+                        mousses = [], 
                         donuts = [] 
                     } = productsData.data;
-                    const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...puddings, ...pastries, ...donuts];
+                    const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...brownies, ...cookies, ...mousses, ...donuts];
                     setProducts(allProducts);
                 } else {
                     setProducts([]);

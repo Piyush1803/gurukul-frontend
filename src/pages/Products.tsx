@@ -10,7 +10,7 @@ interface Product {
   description: string | null;
   price: number;
   imageUrl: string;
-  type: 'deliciousCake' | 'dryCake' | 'cupCake' | 'pudding' | 'pastry' | 'donut';
+  type: 'deliciousCake' | 'dryCake' | 'cupCake' | 'brownie' | 'cookie' | 'mousse' | 'donut';
   flavor?: string;
   quantity?: number;
   rating?: number;
@@ -32,10 +32,11 @@ const Products = () => {
           deliciousCakes: 'deliciousCake',
           dryCakes: 'dryCake',
           cupCakes: 'cupCake',
-          puddings: 'pudding',
-          pastries: 'pastry',
+          brownies: 'brownie',
+          cookies: 'cookie',
+          mousses: 'mousse',
           donuts: 'donut',
-        };
+        } as const;
 
         const selectedType = categoryMap[activeCategory];
         const url =
@@ -51,11 +52,12 @@ const Products = () => {
             deliciousCakes = [], 
             dryCakes = [], 
             cupCakes = [], 
-            puddings = [], 
-            pastries = [], 
+            brownies = [], 
+            cookies = [], 
+            mousses = [], 
             donuts = [] 
           } = result.data || {};
-          const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...puddings, ...pastries, ...donuts];
+          const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...brownies, ...cookies, ...mousses, ...donuts];
           setProducts(allProducts);
         } else {
           setProducts(Array.isArray(result.data) ? result.data : []);
@@ -77,8 +79,9 @@ const Products = () => {
     { key: 'dryCakes' as const, label: 'Dry Cakes' },
     { key: 'cupCakes' as const, label: 'Cup Cakes' },
     { key: 'donuts' as const, label: 'Donuts' },
-    { key: 'pastries' as const, label: 'Pastries' },
-    { key: 'puddings' as const, label: 'Puddings' },
+    { key: 'brownies' as const, label: 'Brownies' },
+    { key: 'cookies' as const, label: 'Cookies' },
+    { key: 'mousses' as const, label: 'Mousse' },
   ];
 
   const handleAddToCart = (productId: string) => {
