@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { Sparkles, Star, Heart, Clock, Edit, Trash2 } from "lucide-react";
+import { Sparkles, Star, Heart, Clock, Edit, Trash2, Upload, Image as ImageIcon } from "lucide-react";
 import { cubicBezier } from "framer-motion";
 
 interface Product {
@@ -67,6 +67,9 @@ const Admin: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const [previewImage, setPreviewImage] = useState<string>("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Fetch products and orders from API
     useEffect(() => {
@@ -112,6 +115,54 @@ const Admin: React.FC = () => {
         setForm({ ...form, type: value });
     };
 
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file');
+            return;
+        }
+
+        // Validate file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB');
+            return;
+        }
+
+        setUploadingImage(true);
+        
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('http://localhost:3001/product/upload-image', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setForm({ ...form, imageUrl: result.imageUrl });
+                setPreviewImage(result.imageUrl);
+                alert('Image uploaded successfully!');
+            } else {
+                const error = await response.json();
+                alert(`Failed to upload image: ${error.message || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Failed to upload image');
+        } finally {
+            setUploadingImage(false);
+        }
+    };
+
+    const handleImageClick = () => {
+        fileInputRef.current?.click();
+    };
+
     const resetForm = () => {
         setForm({
             name: "",
@@ -127,6 +178,10 @@ const Admin: React.FC = () => {
         });
         setEditingProduct(null);
         setIsEditing(false);
+        setPreviewImage("");
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     };
 
     const handleEdit = (product: Product) => {
@@ -144,6 +199,10 @@ const Admin: React.FC = () => {
             weight: product.weight?.toString() || "",
             filling: product.filling || "",
         });
+        setPreviewImage(product.imageUrl || "");
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     };
 
     const handleDelete = async (productId: string, productType: string) => {
@@ -318,17 +377,47 @@ const Admin: React.FC = () => {
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="imageUrl">Image URL</Label>
-                        <Input
-                            id="imageUrl"
-                            name="imageUrl"
-                            type="text"
-                            placeholder="Image URL"
-                            value={form.imageUrl}
-                            onChange={handleChange}
-                            required
-                            autoComplete="off"
-                        />
+                        <Label htmlFor="image">Product Image</Label>
+                        <div className="space-y-2">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="hidden"
+                            />
+                            <div
+                                onClick={handleImageClick}
+                                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                            >
+                                {uploadingImage ? (
+                                    <div className="flex flex-col items-center">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+                                        <p className="text-sm text-gray-600">Uploading...</p>
+                                    </div>
+                                ) : previewImage ? (
+                                    <div className="space-y-2">
+                                        <img
+                                            src={previewImage}
+                                            alt="Preview"
+                                            className="mx-auto h-24 w-24 object-cover rounded-lg"
+                                        />
+                                        <p className="text-sm text-gray-600">Click to change image</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center">
+                                        <ImageIcon className="h-8 w-8 text-gray-400 mb-2" />
+                                        <p className="text-sm text-gray-600">Click to upload image</p>
+                                        <p className="text-xs text-gray-400">PNG, JPG up to 10MB</p>
+                                    </div>
+                                )}
+                            </div>
+                            {form.imageUrl && (
+                                <p className="text-xs text-gray-500 truncate">
+                                    Image URL: {form.imageUrl}
+                                </p>
+                            )}
+                        </div>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="price">Price (₹)</Label>
@@ -460,6 +549,9 @@ const Admin: React.FC = () => {
                             <thead className="bg-primary/10">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wider rounded-tl-2xl">
+                                        Image
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wider">
                                         Type
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-primary uppercase tracking-wider">
@@ -489,6 +581,19 @@ const Admin: React.FC = () => {
                                                 : "hover:bg-primary/5"
                                         }
                                     >
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {prod.imageUrl ? (
+                                                <img
+                                                    src={prod.imageUrl}
+                                                    alt={prod.name}
+                                                    className="h-12 w-12 object-cover rounded-lg"
+                                                />
+                                            ) : (
+                                                <div className="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                    <ImageIcon className="h-6 w-6 text-gray-400" />
+                                                </div>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap font-medium">
                                             <span className="px-2 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">
                                                 {prod.type}
