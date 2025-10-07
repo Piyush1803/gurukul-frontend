@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
+import { apiUrl } from "@/config/api";
 
 interface Product {
   id: string;
@@ -26,7 +27,7 @@ const Products = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const baseUrl = "http://localhost:3001/product";
+        const baseUrl = apiUrl("/product");
         const categoryMap = {
           all: '',
           deliciousCakes: 'deliciousCake',
@@ -48,14 +49,14 @@ const Products = () => {
         const result = await response.json();
 
         if (activeCategory === 'all') {
-          const { 
-            deliciousCakes = [], 
-            dryCakes = [], 
-            cupCakes = [], 
-            brownies = [], 
-            cookies = [], 
-            mousses = [], 
-            donuts = [] 
+          const {
+            deliciousCakes = [],
+            dryCakes = [],
+            cupCakes = [],
+            brownies = [],
+            cookies = [],
+            mousses = [],
+            donuts = []
           } = result.data || {};
           const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...brownies, ...cookies, ...mousses, ...donuts];
           setProducts(allProducts);
