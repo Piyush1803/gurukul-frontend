@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { Sparkles, Star, Heart, Clock, Edit, Trash2, Upload, Image as ImageIcon } from "lucide-react";
 import { cubicBezier } from "framer-motion";
+import { apiUrl } from "@/config/api";
 
 interface Product {
     id: string;
@@ -78,25 +79,25 @@ const Admin: React.FC = () => {
             setLoading(true);
             try {
                 // Fetch all products from backend
-                const productsRes = await fetch("http://localhost:3001/product/all");
+                const productsRes = await fetch(apiUrl("/product/all"));
                 const productsData = await productsRes.json();
-                
+
                 if (productsData.data) {
-                    const { 
-                        deliciousCakes = [], 
-                        dryCakes = [], 
-                        cupCakes = [], 
-                        brownies = [], 
-                        cookies = [], 
-                        mousses = [], 
-                        donuts = [] 
+                    const {
+                        deliciousCakes = [],
+                        dryCakes = [],
+                        cupCakes = [],
+                        brownies = [],
+                        cookies = [],
+                        mousses = [],
+                        donuts = []
                     } = productsData.data;
                     const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...brownies, ...cookies, ...mousses, ...donuts];
                     setProducts(allProducts);
                 } else {
                     setProducts([]);
                 }
-                
+
                 // TODO: Add orders API when available
                 setOrders([]);
             } catch (error) {
@@ -134,12 +135,12 @@ const Admin: React.FC = () => {
         }
 
         setUploadingImage(true);
-        
+
         try {
             const formData = new FormData();
             formData.append('image', file);
 
-            const response = await fetch('http://localhost:3001/product/upload-image', {
+            const response = await fetch(apiUrl('/product/upload-image'), {
                 method: 'POST',
                 body: formData,
             });
@@ -209,12 +210,12 @@ const Admin: React.FC = () => {
 
     const handleDelete = async (productId: string, productType: string) => {
         if (!confirm("Are you sure you want to delete this product?")) return;
-        
+
         try {
-            const response = await fetch(`http://localhost:3001/product/${productType}/${productId}`, {
+            const response = await fetch(apiUrl(`/product/${productType}/${productId}`), {
                 method: "DELETE",
             });
-            
+
             if (response.ok) {
                 setProducts(products.filter(p => p.id !== productId));
                 alert("Product deleted successfully");
@@ -229,7 +230,7 @@ const Admin: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!form.type) {
             alert("Please select a product type");
             return;
@@ -248,10 +249,10 @@ const Admin: React.FC = () => {
                 ...(form.filling && { filling: form.filling }),
             };
 
-            const url = isEditing 
-                ? `http://localhost:3001/product/${form.type}/${editingProduct?.id}`
-                : `http://localhost:3001/product/${form.type}`;
-            
+            const url = isEditing
+                ? apiUrl(`/product/${form.type}/${editingProduct?.id}`)
+                : apiUrl(`/product/${form.type}`);
+
             const method = isEditing ? "PATCH" : "POST";
 
             const res = await fetch(url, {

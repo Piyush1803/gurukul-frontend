@@ -1,4 +1,6 @@
-const API_BASE = "http://localhost:3001/cart";
+import { apiUrl } from "@/config/api";
+
+const API_BASE = apiUrl("/cart");
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");

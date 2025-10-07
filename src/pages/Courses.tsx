@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import React, { useState } from 'react';
+import { API_BASE_URL } from "@/config/api";
 
 // --- ContactForm with Sheety integration ---
 const ContactForm = () => {
@@ -15,7 +16,7 @@ const ContactForm = () => {
         setIsSubmitting(true);
         setSubmissionStatus(null);
 
-        const API = import.meta.env.VITE_API_URL || "http://localhost:3001";
+        const API = API_BASE_URL;
         const form = event.target;
         const formData = new FormData(form);
         const now = new Date();
@@ -40,7 +41,7 @@ const ContactForm = () => {
                 try {
                     const err = await response.json();
                     msg = err?.message || msg;
-                } catch {}
+                } catch { }
                 throw new Error(msg);
             }
             setSubmissionStatus('success');
