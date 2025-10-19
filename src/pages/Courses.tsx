@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import React, { useState } from 'react';
-import { API_BASE_URL } from "../main";
 
 // --- ContactForm with Sheety integration ---
 const ContactForm = () => {
@@ -16,7 +15,6 @@ const ContactForm = () => {
         setIsSubmitting(true);
         setSubmissionStatus(null);
 
-        const API = API_BASE_URL;
         const form = event.target;
         const formData = new FormData(form);
         const now = new Date();
@@ -31,19 +29,32 @@ const ContactForm = () => {
         };
 
         try {
-            const response = await fetch(`${API}/mail/course-inquiry`, {
+            const sheetyPayload = {
+                sheet1: {
+                    name: data.name,
+                    phoneNo: data.phoneNo,
+                    email: data.email,
+                    age: data.age,
+                    message: data.message,
+                    submittedAt: data.submittedAt
+                }
+            };
+
+            const response = await fetch('https://api.sheety.co/f87695357a26c709f44cd4ecdaa2e07a/gurukulCoursesInquiry/sheet1', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
+                body: JSON.stringify(sheetyPayload),
             });
+            
             if (!response.ok) {
-                let msg = 'Failed to send';
+                let msg = 'Failed to send inquiry';
                 try {
                     const err = await response.json();
                     msg = err?.message || msg;
                 } catch {}
                 throw new Error(msg);
             }
+            
             setSubmissionStatus('success');
             form.reset();
         } catch (error: any) {
