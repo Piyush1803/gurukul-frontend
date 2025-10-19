@@ -8,6 +8,7 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 
 export const Home = () => {
+  console.log('Home component rendering...');
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,

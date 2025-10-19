@@ -59,7 +59,9 @@ function ProtectedAdmin({ children }: { children: React.ReactNode }) {
   );
 }
 
-const App = () => (
+const App = () => {
+  console.log('App component rendering...');
+  return (
   <QueryClientProvider client={queryClient}>
     <CartProvider>
       <TooltipProvider>
@@ -88,6 +90,7 @@ const App = () => (
       </TooltipProvider>
     </CartProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

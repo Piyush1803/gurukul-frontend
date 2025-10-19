@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
+import { API_BASE_URL } from "../main";
 
 interface Product {
   id: string;
@@ -17,16 +18,18 @@ interface Product {
 }
 
 const Products = () => {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'deliciousCakes' | 'dryCakes' | 'cupCakes' | 'puddings' | 'pastries' | 'donuts'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'deliciousCakes' | 'dryCakes' | 'cupCakes' | 'brownies' | 'cookies' | 'mousses' | 'donuts'>('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const { addItem } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
+      console.log('Products: Starting to fetch products...');
       setLoading(true);
       try {
-        const baseUrl = "http://localhost:3001/product";
+        const baseUrl = `${API_BASE_URL}/product`;
+        console.log('Products: Using baseUrl:', baseUrl);
         const categoryMap = {
           all: '',
           deliciousCakes: 'deliciousCake',
@@ -44,8 +47,16 @@ const Products = () => {
             ? `${baseUrl}/all`
             : `${baseUrl}/all/${selectedType}`;
 
+        console.log('Products: Fetching from URL:', url);
         const response = await fetch(url);
+        console.log('Products: Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
+        console.log('Products: Response data:', result);
 
         if (activeCategory === 'all') {
           const { 
@@ -58,14 +69,19 @@ const Products = () => {
             donuts = [] 
           } = result.data || {};
           const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...brownies, ...cookies, ...mousses, ...donuts];
+          console.log('Products: Setting products:', allProducts.length, 'items');
           setProducts(allProducts);
         } else {
-          setProducts(Array.isArray(result.data) ? result.data : []);
+          const products = Array.isArray(result.data) ? result.data : [];
+          console.log('Products: Setting products:', products.length, 'items');
+          setProducts(products);
         }
       } catch (err: any) {
-        console.error("Fetch error:", err);
+        console.error("Products: Fetch error:", err);
+        console.log('Products: Setting empty products array due to error');
         setProducts([]);
       } finally {
+        console.log('Products: Setting loading to false');
         setLoading(false);
       }
     };
