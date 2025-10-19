@@ -5,6 +5,7 @@ import heroImage from "@/assets/bakery-hero.jpg";
 import { Link } from "react-router-dom";
 
 export const Hero = () => {
+  console.log('Hero component rendering...');
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

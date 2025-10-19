@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { API_BASE_URL } from "../main";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -67,7 +68,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                   try {
                     if (isLogin) {
                       // ✅ LOGIN request
-                      const res = await fetch("http://localhost:3001/auth/login", {
+                      const res = await fetch(`${API_BASE_URL}/auth/login`, {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",
@@ -113,7 +114,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                       const phoneNumber = (document.getElementById("phoneNumber") as HTMLInputElement).value;
                       const address = (document.getElementById("address") as HTMLInputElement).value;
 
-                      const res = await fetch("http://localhost:3001/users/registerUser", {
+                      const res = await fetch(`${API_BASE_URL}/users/registerUser`, {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",

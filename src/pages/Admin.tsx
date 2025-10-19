@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { Sparkles, Star, Heart, Clock, Edit, Trash2, Upload, Image as ImageIcon } from "lucide-react";
 import { cubicBezier } from "framer-motion";
+import { API_BASE_URL } from "../main";
 
 interface Product {
     id: string;
@@ -78,7 +79,7 @@ const Admin: React.FC = () => {
             setLoading(true);
             try {
                 // Fetch all products from backend
-                const productsRes = await fetch("http://localhost:3001/product/all");
+                const productsRes = await fetch(`${API_BASE_URL}/product/all`);
                 const productsData = await productsRes.json();
                 
                 if (productsData.data) {
@@ -139,7 +140,7 @@ const Admin: React.FC = () => {
             const formData = new FormData();
             formData.append('image', file);
 
-            const response = await fetch('http://localhost:3001/product/upload-image', {
+            const response = await fetch(`${API_BASE_URL}/product/upload-image`, {
                 method: 'POST',
                 body: formData,
             });
@@ -211,7 +212,7 @@ const Admin: React.FC = () => {
         if (!confirm("Are you sure you want to delete this product?")) return;
         
         try {
-            const response = await fetch(`http://localhost:3001/product/${productType}/${productId}`, {
+            const response = await fetch(`${API_BASE_URL}/product/${productType}/${productId}`, {
                 method: "DELETE",
             });
             
@@ -249,8 +250,8 @@ const Admin: React.FC = () => {
             };
 
             const url = isEditing 
-                ? `http://localhost:3001/product/${form.type}/${editingProduct?.id}`
-                : `http://localhost:3001/product/${form.type}`;
+                ? `${API_BASE_URL}/product/${form.type}/${editingProduct?.id}`
+                : `${API_BASE_URL}/product/${form.type}`;
             
             const method = isEditing ? "PATCH" : "POST";
 
