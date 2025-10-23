@@ -151,12 +151,18 @@ const Admin: React.FC = () => {
                 setPreviewImage(result.imageUrl);
                 alert('Image uploaded successfully!');
             } else {
-                const error = await response.json();
-                alert(`Failed to upload image: ${error.message || 'Unknown error'}`);
+                let errorMessage = 'Unknown error';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorData.error || errorMessage;
+                } catch (parseError) {
+                    errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                }
+                alert(`Failed to upload image: ${errorMessage}`);
             }
         } catch (error) {
             console.error('Error uploading image:', error);
-            alert('Failed to upload image');
+            alert(`Failed to upload image: ${error instanceof Error ? error.message : 'Network error'}`);
         } finally {
             setUploadingImage(false);
         }

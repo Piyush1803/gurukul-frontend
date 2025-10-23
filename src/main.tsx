@@ -3,8 +3,8 @@ import App from './App.tsx'
 import './index.css'
 
 // Global backend URL configuration
-export const API_BASE_URL = 'https://gurukulbakery.com/api';
-// export const API_BASE_URL = 'http://localhost:3001/api';
+// export const API_BASE_URL = 'https://gurukulbakery.com/api';
+export const API_BASE_URL = 'http://localhost:3001';
 
 console.log('Main.tsx loaded, API_BASE_URL:', API_BASE_URL);
 
