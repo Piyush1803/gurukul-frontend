@@ -3,18 +3,18 @@ import { Heart, Clock, Users, Award } from "lucide-react";
 
 export const About = () => {
   const timeline = [
-    { year: "1985", event: "Founded by Master Baker Jean Pierre" },
-    { year: "1992", event: "Opened our first baking school" },
-    { year: "2005", event: "Expanded to include artisan courses" },
-    { year: "2020", event: "Launched online ordering platform" },
-    { year: "2024", event: "Celebrating 40 years of excellence" }
+    { year: "2012", event: "Founded by Chef Priyanka Kumar" },
+    { year: "2015", event: "Opened our first baking school" },
+    { year: "2018", event: "Expanded to include Gurukul courses" },
+    { year: "2022", event: "Celebrating 10 years of excellence" },
+    { year: "2025", event: "Launched online ordering platform" }
   ];
 
   const stats = [
-    { icon: Clock, number: "40+", label: "Years of Experience" },
+    { icon: Clock, number: "13+", label: "Years of Experience" },
     { icon: Users, number: "10K+", label: "Students Taught" },
     { icon: Heart, number: "1M+", label: "Happy Customers" },
-    { icon: Award, number: "25+", label: "Awards Won" }
+    { icon: Award, number: "5+", label: "Awards Won" }
   ];
 
   const containerVariants = {
@@ -81,9 +81,9 @@ export const About = () => {
               className="prose prose-lg max-w-none text-muted-foreground"
             >
               <p className="text-xl leading-relaxed mb-6">
-                Founded in 1985 by Master Baker Jean Pierre, Artisan Bakery began as a small 
+                Founded in 2012 by Chef Priyanka Kumar, Gurukul Bakery began as a small 
                 neighborhood shop with a simple mission: to bring the authentic taste of 
-                French baking to our community.
+                Punjab baking to our community.
               </p>
               
               <p className="text-xl leading-relaxed mb-6">

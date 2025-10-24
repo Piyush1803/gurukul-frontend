@@ -1,4 +1,14 @@
-const API_BASE = "http://localhost:3001/cart";
+import { API_BASE_URL } from '../main';
+
+const API_BASE = `${API_BASE_URL}/cart`;
+
+interface RawCartItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+}
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");

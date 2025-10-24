@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ShoppingCart, User, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -20,6 +20,7 @@ export const Navigation = ({
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -47,6 +48,15 @@ export const Navigation = ({
       ? [{ to: "/admin", label: "Admin", type: "route" }]
       : []),
   ];
+
+  const handleScrollNavClick = (targetId: string) => {
+    // If we are already on landing page, let react-scroll handle it
+    if (location.pathname === "/") return;
+    // Otherwise navigate to landing page and request scroll target
+    navigate("/", { state: { scrollTo: targetId } });
+    // close mobile menu if open
+    setIsOpen(false);
+  };
 
 
 
@@ -80,18 +90,28 @@ export const Navigation = ({
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) =>
               item.type === "scroll" ? (
-                <ScrollLink
-                  key={item.to}
-                  to={item.to}
-                  smooth={true}
-                  duration={600}
-                  spy={true}
-                  offset={-70}
-                  className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
-                  activeClass="text-primary"
-                >
-                  {item.label}
-                </ScrollLink>
+                location.pathname === "/" ? (
+                  <ScrollLink
+                    key={item.to}
+                    to={item.to}
+                    smooth={true}
+                    duration={600}
+                    spy={true}
+                    offset={-70}
+                    className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
+                    activeClass="text-primary"
+                  >
+                    {item.label}
+                  </ScrollLink>
+                ) : (
+                  <button
+                    key={item.to}
+                    onClick={() => handleScrollNavClick(item.to)}
+                    className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
+                  >
+                    {item.label}
+                  </button>
+                )
               ) : (
                 <NavLink
                   key={item.to}
@@ -160,23 +180,35 @@ export const Navigation = ({
             <div className="px-4 py-4 flex flex-col space-y-2">
               {navItems.map((item) =>
                 item.type === "scroll" ? (
-                  <ScrollLink
-                    key={item.to}
-                    to={item.to}
-                    smooth={true}
-                    duration={600}
-                    spy={true}
-                    offset={-70}
-                    className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
-                    activeClass="text-primary"
-                  >
-                    {item.label}
-                  </ScrollLink>
+                  location.pathname === "/" ? (
+                    <ScrollLink
+                      key={item.to}
+                      to={item.to}
+                      smooth={true}
+                      duration={600}
+                      spy={true}
+                      offset={-70}
+                      className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
+                      activeClass="text-primary"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.label}
+                    </ScrollLink>
+                  ) : (
+                    <button
+                      key={item.to}
+                      onClick={() => handleScrollNavClick(item.to)}
+                      className="relative font-medium text-left cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
+                    >
+                      {item.label}
+                    </button>
+                  )
                 ) : (
                   <NavLink
                     key={item.to}
                     to={item.to}
                     className="relative font-medium cursor-pointer select-none text-muted-foreground hover:text-primary transition-colors duration-300"
+                    onClick={() => setIsOpen(false)}
                   >
                     {item.label}
                   </NavLink>

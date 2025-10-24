@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Users, BookOpen, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import React, { useState } from 'react';
 
@@ -14,40 +15,51 @@ const ContactForm = () => {
         setIsSubmitting(true);
         setSubmissionStatus(null);
 
-        const SHEETY_ENDPOINT = 'https://api.sheety.co/7c902e1a3a2e23b195242f624ed6ddc6/coursesQueryList/sheet1';
         const form = event.target;
         const formData = new FormData(form);
         const now = new Date();
         const submittedAt = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
         const data = {
             name: formData.get("name"),
-            phoneNo: formData.get("phoneNo"), // now phoneNo comes second
+            phoneNo: formData.get("phoneNo"),
             email: formData.get("email"),
             age: formData.get("age"),
-            address: formData.get("address"),
+            message: formData.get("message"),
             submittedAt,
         };
 
         try {
-            const response = await fetch(SHEETY_ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ sheet1: data }),
-            });
+            const sheetyPayload = {
+                sheet1: {
+                    name: data.name,
+                    phoneNo: data.phoneNo,
+                    email: data.email,
+                    age: data.age,
+                    message: data.message,
+                    submittedAt: data.submittedAt
+                }
+            };
 
-            if (response.ok) {
-                setSubmissionStatus('success');
-                form.reset();
-            } else {
-                const errorData = await response.json();
-                console.error('Submission failed:', errorData);
-                setSubmissionStatus('error');
+            const response = await fetch('https://api.sheety.co/f87695357a26c709f44cd4ecdaa2e07a/gurukulCoursesInquiry/sheet1', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sheetyPayload),
+            });
+            
+            if (!response.ok) {
+                let msg = 'Failed to send inquiry';
+                try {
+                    const err = await response.json();
+                    msg = err?.message || msg;
+                } catch {}
+                throw new Error(msg);
             }
-        } catch (error) {
+            
+            setSubmissionStatus('success');
+            form.reset();
+        } catch (error: any) {
             console.error('An error occurred:', error);
-            setSubmissionStatus('error');
+            setSubmissionStatus(error?.message || 'error');
         } finally {
             setIsSubmitting(false);
         }
@@ -72,16 +84,16 @@ const ContactForm = () => {
                     <input type="tel" name="phoneNo" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="Your Phone Number" />
                 </div>
                 <div>
-                    <label className="block text-left text-muted-foreground mb-1 font-medium">Email (optional)</label>
-                    <input type="email" name="email" className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="you@email.com" />
+                    <label className="block text-left text-muted-foreground mb-1 font-medium">Email</label>
+                    <input type="email" name="email" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="you@email.com" />
                 </div>
                 <div>
                     <label className="block text-left text-muted-foreground mb-1 font-medium">Age</label>
                     <input type="number" name="age" required min="1" className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="Your Age" />
                 </div>
                 <div>
-                    <label className="block text-left text-muted-foreground mb-1 font-medium">Address</label>
-                    <input type="text" name="address" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition" placeholder="Your Address" />
+                    <label className="block text-left text-muted-foreground mb-1 font-medium">Message</label>
+                    <textarea name="message" required className="w-full px-4 py-2 rounded-lg border border-accent bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition min-h-28" placeholder="Your message"></textarea>
                 </div>
                 <motion.div whileHover={{ scale: isSubmitting ? 1 : 1.04 }} whileTap={{ scale: isSubmitting ? 1 : 0.97 }}>
                     <Button type="submit" variant="hero" size="lg" className="w-full text-lg py-3" disabled={isSubmitting}>
@@ -91,35 +103,240 @@ const ContactForm = () => {
                 {submissionStatus === 'success' && (
                     <p className="text-center text-green-500 mt-4">Thank you! Your inquiry has been sent successfully.</p>
                 )}
-                {submissionStatus === 'error' && (
-                    <p className="text-center text-red-500 mt-4">Something went wrong. Please try again later.</p>
+                {submissionStatus && submissionStatus !== 'success' && (
+                    <p className="text-center text-red-500 mt-4">{String(submissionStatus)}</p>
                 )}
             </form>
         </motion.div>
     );
 };
 
-const courses = [
+type Course = {
+    icon: any;
+    title: string;
+    description: string;
+    duration: string;
+    price: string;
+    items: string[];
+};
+
+const courses: Course[] = [
     {
         icon: BookOpen,
-        title: "Artisan Bread Baking",
-        description: "Master the secrets of sourdough, baguettes, and more with hands-on guidance.",
-        level: "Beginner to Advanced",
-        duration: "4 weeks",
+        title: "Basics of Frosting and Cream Cakes",
+        description: "Foundational sponges and layering for cream cakes.",
+        duration: "10 Days",
+        price: "Rs 10000",
+        items: [
+            "Vanilla Sponge",
+            "Chocolate Sponge",
+            "Red Velvet Sponge",
+            "Coffee Sponge",
+        ],
     },
     {
         icon: Star,
-        title: "Pastry Perfection",
-        description: "Learn to craft croissants, danishes, and classic French pastries from scratch.",
-        level: "Intermediate",
-        duration: "3 weeks",
+        title: "Muffins – 10 types",
+        description: "Bake 10 delicious muffin variants with consistent techniques.",
+        duration: "5 Days",
+        price: "Rs 5500",
+        items: [
+            "Double Chocolate Cup Muffin",
+            "Banana Oats Muffin",
+            "Blueberry Muffin",
+            "Honey Oat Raisin Muffin",
+            "Vanilla Muffin",
+            "Banana Bonanza Muffin",
+            "Nutella Peanut Butter Muffin",
+            "Fruit and Nut Muffin",
+            "Spinach and Corn Muffin",
+            "Coffee – Walnut Muffin",
+        ],
     },
     {
         icon: Users,
-        title: "Cake Decorating Essentials",
-        description: "From buttercream basics to advanced fondant art, elevate your cake skills.",
-        level: "All Levels",
-        duration: "2 weeks",
+        title: "Dry Cakes – 8 types",
+        description: "Moist, flavorful dry tea cakes and loaves.",
+        duration: "5 Days",
+        price: "Rs 5500",
+        items: [
+            "Carrot Cake with Orange Frosting",
+            "Date Walnut Cake",
+            "Almond Semolina Tea Cake",
+            "Chocochip Chocolate Cake",
+            "Whole Wheat Banana Cake",
+            "Lemon Cake",
+            "Fig and Dates Cake",
+            "Marble Loaf Cake with Chocolate Hazelnut Glaze",
+        ],
+    },
+    {
+        icon: BookOpen,
+        title: "Brownies – 6 types",
+        description: "Rich, fudgy brownies in multiple flavors.",
+        duration: "5 Days",
+        price: "Rs 5500",
+        items: [
+            "Walnut Brownie",
+            "Oreo Brownie",
+            "Biscoff Brownie",
+            "Nutella Brownie",
+            "Choco Overload Brownie",
+            "Monster Brownie",
+        ],
+    },
+    {
+        icon: Star,
+        title: "Cupcakes – 8 types",
+        description: "Decorated cupcakes with balanced sponges and frostings.",
+        duration: "5 Days",
+        price: "Rs 5500",
+        items: [
+            "Chocolate Cupcake",
+            "Nutella Cupcake",
+            "Red Velvet Cupcake",
+            "Cherry Filled Vanilla Cupcake",
+            "Biscoff Cupcake",
+            "Blueberry Lemon Cup",
+            "Baklava Cupcake",
+            "Cookies and Cream Cupcake",
+        ],
+    },
+    {
+        icon: Users,
+        title: "Cookies",
+        description: "Classic, filled, and savory cookie varieties.",
+        duration: "5 Days",
+        price: "Rs 5500",
+        items: [
+            "Double Chocochips Cookies",
+            "Chocolatechip Cookies",
+            "Oat and Raisin Cookies",
+            "Choco Chunk Cookies",
+            "Christmas Cookies",
+            "Nutella Filled Cookies",
+            "Chilli Cheese Cookies",
+            "Choco Almond Cookies",
+        ],
+    },
+    {
+        icon: BookOpen,
+        title: "Chocolate Cakes – 5 types",
+        description: "Chocolate celebration cakes and finishes.",
+        duration: "5 Days",
+        price: "Rs 7000",
+        items: [
+            "Bakery Style and Home-Made Sponge",
+            "Choco Almond Praline Cake",
+            "Kitkat Cake",
+            "Mississipi Mad Cake",
+            "Pinata Cake",
+        ],
+    },
+    {
+        icon: Star,
+        title: "Travel Cakes – 5 types",
+        description: "Durable cakes ideal for gifting and travel.",
+        duration: "5 Days",
+        price: "Rs 6500",
+        items: [
+            "Vanilla Blueberry Cake",
+            "Choco Hazelnut Cake",
+            "Almond Praline Cake",
+            "Rose Pistachio",
+            "Chocolate Biscoff Cake",
+        ],
+    },
+    {
+        icon: Users,
+        title: "Decorative Cakes",
+        description: "Showpiece cakes with themes and finishes.",
+        duration: "8 Days",
+        price: "Rs 6500",
+        items: [
+            "Pineapple Cake",
+            "Doll Cake",
+            "Red Velvet Cake",
+            "Black Forest Cake",
+            "Anti-Gravity Cake",
+            "Photo Cake",
+            "Truffle Cake",
+            "Oreo Cake",
+        ],
+    },
+    {
+        icon: BookOpen,
+        title: "Cheese Cakes",
+        description: "Baked and set cheesecakes in popular flavors.",
+        duration: "5 Days",
+        price: "Rs 6500",
+        items: [
+            "Strawberry Cheese Cake",
+            "Blueberry Cheese Cake",
+            "Biscoff Cheese Cake",
+            "Cookies and Cream Cheese Cake",
+        ],
+    },
+    {
+        icon: Star,
+        title: "Bread – 5 types",
+        description: "Everyday and artisanal breads and buns.",
+        duration: "6 Days",
+        price: "Rs 6000",
+        items: [
+            "Sandwich Loaf",
+            "Masala Loaf",
+            "Pao",
+            "Burger Bun",
+            "Focassia",
+            "Charcoal Bread",
+        ],
+    },
+    {
+        icon: Users,
+        title: "Coffee (Barista Course)",
+        description: "Brew methods and cafe-style beverages.",
+        duration: "5 Days",
+        price: "Rs 10000",
+        items: [
+            "Cappucino",
+            "Latte",
+            "Dalgona",
+            "Americano",
+            "French Vanilla",
+            "Mocha",
+            "Caramel",
+            "Frappe / Cold Coffee",
+        ],
+    },
+    {
+        icon: BookOpen,
+        title: "Pizza",
+        description: "Pizza bases, sauces, and baked accompaniments.",
+        duration: "5 Days",
+        price: "Rs 5500",
+        items: [
+            "Regular Pizza Base",
+            "Thin Crust Pizza Base",
+            "Cheesy Burst Pizza Base",
+            "Pizza Sauces",
+            "Tough Garlic Bread",
+            "Kulhad Pizza",
+        ],
+    },
+    {
+        icon: Star,
+        title: "Pasta",
+        description: "Classic sauces and baked pasta dishes.",
+        duration: "5 Days",
+        price: "Rs 5500",
+        items: [
+            "Alfredo Red Pasta",
+            "Arabita White Pasta",
+            "Bake Veg Bolognese Pasta",
+            "Mix Sauce Pasta",
+            "Alioli Pasta",
+        ],
     },
 ];
 
@@ -148,12 +365,13 @@ const cardVariants = {
 };
 
 export const Courses = () => {
+    const [openIndex, setOpenIndex] = useState<number | null>(null);
     return (
         <div className="min-h-screen bg-gradient-warm py-20">
             <div className="container mx-auto px-4 relative">
                 {/* Contact Us WhatsApp Button - top right, theme color */}
                 <a
-                    href="https://wa.me/918076036432"
+                    href="https://wa.me/918918215576"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="absolute top-0 right-0 mt-2 mr-8 z-50"
@@ -207,11 +425,31 @@ export const Courses = () => {
                             <h3 className="text-2xl font-serif font-semibold mb-2">{course.title}</h3>
                             <p className="text-muted-foreground mb-4">{course.description}</p>
                             <div className="flex justify-center gap-4 text-sm text-accent mb-4">
-                                <span>{course.level}</span>
-                                <span>•</span>
                                 <span>{course.duration}</span>
+                                <span>•</span>
+                                <span>{course.price}</span>
                             </div>
-                            <Button variant="hero" size="sm" className="mt-2">Learn More</Button>
+
+                            <Dialog open={openIndex === idx} onOpenChange={(open) => setOpenIndex(open ? idx : null)}>
+                                <DialogTrigger asChild>
+                                    <Button variant="hero" size="sm" className="mt-2" onClick={() => setOpenIndex(idx)}>Learn More</Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>{course.title}</DialogTitle>
+                                        <DialogDescription>
+                                            {course.description} • {course.duration} • {course.price}
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="mt-2 text-sm">
+                                        <ul className="list-disc pl-5 space-y-1 text-left">
+                                            {course.items.map((it) => (
+                                                <li key={it}>{it}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                         </motion.div>
                     ))}
                 </motion.div>

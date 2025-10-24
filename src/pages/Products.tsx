@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
+import { API_BASE_URL } from "../main";
 
 interface Product {
   id: string;
@@ -10,32 +11,35 @@ interface Product {
   description: string | null;
   price: number;
   imageUrl: string;
-  type: 'deliciousCake' | 'dryCake' | 'cupCake' | 'pudding' | 'pastry' | 'donut';
+  type: 'deliciousCake' | 'dryCake' | 'cupCake' | 'brownie' | 'cookie' | 'mousse' | 'donut';
   flavor?: string;
   quantity?: number;
   rating?: number;
 }
 
 const Products = () => {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'deliciousCakes' | 'dryCakes' | 'cupCakes' | 'puddings' | 'pastries' | 'donuts'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'deliciousCakes' | 'dryCakes' | 'cupCakes' | 'brownies' | 'cookies' | 'mousses' | 'donuts'>('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const { addItem } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
+      console.log('Products: Starting to fetch products...');
       setLoading(true);
       try {
-        const baseUrl = "http://localhost:3001/product";
+        const baseUrl = `${API_BASE_URL}/product`;
+        console.log('Products: Using baseUrl:', baseUrl);
         const categoryMap = {
           all: '',
           deliciousCakes: 'deliciousCake',
           dryCakes: 'dryCake',
           cupCakes: 'cupCake',
-          puddings: 'pudding',
-          pastries: 'pastry',
+          brownies: 'brownie',
+          cookies: 'cookie',
+          mousses: 'mousse',
           donuts: 'donut',
-        };
+        } as const;
 
         const selectedType = categoryMap[activeCategory];
         const url =
@@ -43,27 +47,41 @@ const Products = () => {
             ? `${baseUrl}/all`
             : `${baseUrl}/all/${selectedType}`;
 
+        console.log('Products: Fetching from URL:', url);
         const response = await fetch(url);
+        console.log('Products: Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
+        console.log('Products: Response data:', result);
 
         if (activeCategory === 'all') {
           const { 
             deliciousCakes = [], 
             dryCakes = [], 
             cupCakes = [], 
-            puddings = [], 
-            pastries = [], 
+            brownies = [], 
+            cookies = [], 
+            mousses = [], 
             donuts = [] 
           } = result.data || {};
-          const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...puddings, ...pastries, ...donuts];
+          const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...brownies, ...cookies, ...mousses, ...donuts];
+          console.log('Products: Setting products:', allProducts.length, 'items');
           setProducts(allProducts);
         } else {
-          setProducts(Array.isArray(result.data) ? result.data : []);
+          const products = Array.isArray(result.data) ? result.data : [];
+          console.log('Products: Setting products:', products.length, 'items');
+          setProducts(products);
         }
       } catch (err: any) {
-        console.error("Fetch error:", err);
+        console.error("Products: Fetch error:", err);
+        console.log('Products: Setting empty products array due to error');
         setProducts([]);
       } finally {
+        console.log('Products: Setting loading to false');
         setLoading(false);
       }
     };
@@ -77,8 +95,9 @@ const Products = () => {
     { key: 'dryCakes' as const, label: 'Dry Cakes' },
     { key: 'cupCakes' as const, label: 'Cup Cakes' },
     { key: 'donuts' as const, label: 'Donuts' },
-    { key: 'pastries' as const, label: 'Pastries' },
-    { key: 'puddings' as const, label: 'Puddings' },
+    { key: 'brownies' as const, label: 'Brownies' },
+    { key: 'cookies' as const, label: 'Cookies' },
+    { key: 'mousses' as const, label: 'Mousse' },
   ];
 
   const handleAddToCart = (productId: string) => {

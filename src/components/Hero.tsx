@@ -5,6 +5,7 @@ import heroImage from "@/assets/bakery-hero.jpg";
 import { Link } from "react-router-dom";
 
 export const Hero = () => {
+  console.log('Hero component rendering...');
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -66,9 +67,13 @@ export const Hero = () => {
           variants={itemVariants}
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
-          <Button variant="hero" size="lg" className="text-lg px-8 py-3">
-            Order Now
-          </Button>
+          <Link to="/products">
+            <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.97 }}>
+              <Button variant="hero" size="lg" className="text-lg px-8 py-3">
+                Order Now
+              </Button>
+            </motion.div>
+          </Link>
 
           <Link to="/courses">
             <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.97 }}>

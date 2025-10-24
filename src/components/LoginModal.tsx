@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { API_BASE_URL } from "../main";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -67,7 +68,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                   try {
                     if (isLogin) {
                       // ✅ LOGIN request
-                      const res = await fetch("http://localhost:3001/auth/login", {
+                      const res = await fetch(`${API_BASE_URL}/auth/login`, {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",
@@ -113,7 +114,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                       const phoneNumber = (document.getElementById("phoneNumber") as HTMLInputElement).value;
                       const address = (document.getElementById("address") as HTMLInputElement).value;
 
-                      const res = await fetch("http://localhost:3001/users/registerUser", {
+                      const res = await fetch(`${API_BASE_URL}/users/registerUser`, {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",
@@ -137,15 +138,6 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
 
                       alert("Signup successful! Please login.");
                       setIsLogin(true);
-
-
-                      if (!res.ok) {
-                        alert("Signup failed");
-                        return;
-                      }
-
-                      alert("Signup successful! Please login.");
-                      setIsLogin(true);
                     }
                   } catch (err) {
                     console.error(err);
@@ -154,13 +146,27 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                 }}
               >
                 {!isLogin && (
-                  <div>
-                    <Label htmlFor="username">Username</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input id="username" type="text" placeholder="Username" className="pl-10" />
+                  <>
+                    <div>
+                      <Label htmlFor="firstName">First Name</Label>
+                      <div className="relative">
+                        <Input id="firstName" type="text" placeholder="First Name" required />
+                      </div>
                     </div>
-                  </div>
+                    <div>
+                      <Label htmlFor="lastName">Last Name (optional)</Label>
+                      <div className="relative">
+                        <Input id="lastName" type="text" placeholder="Last Name" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="userName">Username (optional)</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input id="userName" type="text" placeholder="Username" className="pl-10" />
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div>
@@ -178,6 +184,23 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
                     <Input id="password" type="password" placeholder="Password" className="pl-10" />
                   </div>
                 </div>
+
+                {!isLogin && (
+                  <>
+                    <div>
+                      <Label htmlFor="phoneNumber">Phone Number</Label>
+                      <div className="relative">
+                        <Input id="phoneNumber" type="tel" placeholder="Phone Number" required />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="address">Address</Label>
+                      <div className="relative">
+                        <Input id="address" type="text" placeholder="Address" required />
+                      </div>
+                    </div>
+                  </>
+                )}
 
 
                 <Button type="submit" className="w-full">
