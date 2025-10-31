@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import React, { useState } from 'react';
+import bakingClassImg from "@/assets/baking-class.jpg";
+import pastriesImg from "@/assets/pastries.jpg";
+import bakeryHeroImg from "@/assets/bakery-hero.jpg";
 
 // --- ContactForm with Sheety integration ---
 const ContactForm = () => {
@@ -119,6 +122,185 @@ type Course = {
     price: string;
     items: string[];
 };
+
+type Program = {
+    title: string;
+    image: string;
+    duration: string;
+    timings: string[];
+    description: string;
+    items: string[];
+};
+
+const programs: Program[] = [
+    {
+        title: "1 Month Basic Cake Making Course (Eggless)",
+        image: bakingClassImg,
+        duration: "1 Month",
+        timings: [
+            "Morning (11:00am – 2:00pm)",
+            "Evening (2:30pm – 5:30pm)",
+        ],
+        description:
+            "Covers piping to baking, cupcakes, muffins, dry cakes, brownies and more to build a solid bakery menu.",
+        items: [
+            "Oil based sponges",
+            "Butter based sponges",
+            "Tea time cakes (Whole wheat & jaggery, Marble, Brownie)",
+            "Muffins (Tutti fruitti, Choco chip)",
+            "Cupcakes (Chocolate truffle, Vanilla Strawberry)",
+            "Pinata cake (with sponge)",
+            "Fresh fruit cake icing & strawberry filling",
+            "Theme cake – Makeup",
+            "Butterscotch + Praline + Caramel",
+            "Truffle cake",
+            "Premix cake – Pineapple",
+            "Chocolate garnishing (balls, 3D hearts, sails, barks)",
+            "Small serve dessert – Triple chocolate mousse",
+            "Practice: Round, Heart, Square cakes",
+            "Piping techniques & nozzles; roses with fresh cream",
+            "Trending designs, Whipped cream master class",
+            "Theory & costing of every item",
+        ],
+    },
+    {
+        title: "2 Months Complete Cake Making Course (Eggless)",
+        image: pastriesImg,
+        duration: "2 Months",
+        timings: [
+            "Morning (11:00am – 2:00pm)",
+            "Evening (2:30pm – 5:30pm)",
+        ],
+        description:
+            "Master-course from sponges to cheesecakes, theme cakes, cookies, small desserts and pro finishes.",
+        items: [
+            "Oil, Butter & Milkmaid sponges",
+            "Tea time cakes (Whole wheat & jaggery, Marble, Lemon)",
+            "Brownies (Nutella Hazelnut or Oreo)",
+            "Muffins (Tutti fruitti, Choco chip, Banana crumble)",
+            "Cupcakes (Vanilla, Chocolate truffle, Red velvet with American Buttercream)",
+            "Pinata – Heart (Surprise theme)",
+            "Cheesecakes – Baked & No-bake",
+            "Fresh fruit icing; Strawberry Geode effect (Isomalt/Rice paper)",
+            "Theme cakes: Unicorn/Farm, Make up, Butterscotch, Truffle",
+            "Cookies (Coconut, NY-style Chocolate Chunk, Atta biscuits)",
+            "Swiss Roll",
+            "Small serve desserts (Coffee Verrine, Triple chocolate mousse)",
+            "Fillings & ratios: ganaches, praline, cream cheese, buttercream",
+            "Chocolate garnishing (balls, 3D hearts, sails, barks)",
+            "Practice: Round/Heart/Square, piping, nozzles, roses, trending designs",
+            "Whipped cream master class, Theory, Costing",
+        ],
+    },
+    {
+        title: "3 Months Advance Certificate Course in Bakery (Eggless)",
+        image: bakeryHeroImg,
+        duration: "3 Months",
+        timings: [
+            "Morning (11:00am – 2:00pm)",
+            "Evening (2:30pm – 5:30pm)",
+        ],
+        description:
+            "Advanced sponges, decoration, chocolate, fondant, wedding cakes, breads and desserts.",
+        items: [
+            "Oil, Butter & Milkmaid sponges",
+            "Tea time cakes (Whole wheat & jaggery, Marble, Pineapple upside-down, Lemon)",
+            "Brownies (Nutella Hazelnut or Oreo)",
+            "Muffins (Tutti fruitti, Choco chip, Banana crumble)",
+            "Cupcakes (Vanilla, Chocolate truffle, Red velvet)",
+            "Pinata cake",
+            "Cheesecakes – Baked & No-bake",
+            "Fresh fruit icing; Strawberry Geode (Isomalt/Rice paper)",
+            "Theme cakes (Unicorn/Farm, Butterscotch, Make up)",
+            "Truffle cake (full fondant mermaid)",
+            "Monogram tart cake",
+            "Fillings & ratios: ganaches, praline, cream cheese, buttercream, lemon curd, apple pie filling",
+            "Chocolate garnishing (balls, 3D hearts, sails, barks)",
+            "Wedding cake: 2-tier with stacking",
+            "Cookies (Nankhatai, Coconut, NY-style Chocolate Chunk, Jeera, Atta in desi ghee)",
+            "Breads (Pav, Burger buns with filling, Garlic bread Dominos style, Pizza dough & sauce, Bread loaf)",
+            "Small desserts (Fruit custard pudding, Triple chocolate mousse, Coffee verrine)",
+            "Tarts & pies (Apple pie, Lemon tart with coconut mousse & coffee buttercream)",
+            "Doughnuts with custard/Nutella/Biscoff",
+            "Swiss Roll",
+            "Practice: shapes, piping, roses, trending designs; whipped cream master class; Theory & costing",
+        ],
+    },
+    {
+        title: "6 Months Diploma in Bakery & Confectionery (Eggless)",
+        image: pastriesImg,
+        duration: "6 Months",
+        timings: [
+            "Morning (11:00am – 2:00pm)",
+            "Evening (2:30pm – 5:30pm)",
+        ],
+        description:
+            "Comprehensive diploma: sponges, icings, fondant, wedding cakes, breads, viennoiseries, French desserts, royal icing cookies.",
+        items: [
+            "Oil, Butter & Milkmaid sponges",
+            "Tea time cakes (Whole wheat & jaggery, Marble, Chocolate caramel, Semolina, Mawa, Lemon, Pineapple upside-down, Banana)",
+            "Brownies (Nutella Hazelnut, Oreo)",
+            "Muffins (Tutti fruitti, Choco chip, Banana crumble)",
+            "Cupcakes (Pineapple buttercream, Chocolate truffle, Red velvet, Vanilla Strawberry)",
+            "Pinata cake (with sponge & surprise)",
+            "Cheesecakes – 2 baked + 2 no-bake",
+            "Fresh fruit icing & strawberry filling",
+            "Theme cakes: Butterscotch, Unicorn (top forward), Red velvet buttercream, Farm/Jungle, Truffle, Half naked, Choco-vanilla",
+            "Full fondant cakes – 2 (trending)",
+            "Monogram tart, Neapolitan cake",
+            "Fillings: chocolate/caramel ganache, praline, cream cheese, buttercream, lemon curd, apple pie filling, pineapple buttercream",
+            "Chocolate garnishing (balls, 3D hearts, sails, barks)",
+            "Wedding cakes: 2-tier + stacking, 3-tier semi-fondant",
+            "Cookies (Coconut, Cake rusk, Jeera, Nutella, Nankhatai, NY Choco chunk, Chocolate oats)",
+            "Breads (Pav, Burger buns, Garlic bread, Bread loaf, Pizza, Korean buns, Subway bread with filling)",
+            "Small desserts (Caramel banana, Fruit custard pudding, Triple chocolate mousse, Coffee verrine)",
+            "Tarts & pies (Apple, Lemon, Chocolate)",
+            "Doughnuts & Berliners",
+            "Entremet (Chocolate hazelnut or seasonal)",
+            "French desserts – Opera",
+            "Chocolates (Centre-filled, Truffle balls, Coffee bonbon, White chocolate fudge)",
+            "Puff pastry (Cream roll, Vol-au-vent, Potato puff, other shapes)",
+            "Ice creams (Vanilla, Chocolate) & Fillings (Caramel sauce/ganache, Chocolate ganache, Almond praline, Buttercream, Cream cheese, American Buttercream)",
+        ],
+    },
+    {
+        title: "1 Year Advance International Diploma in Bakery & Confectionery",
+        image: bakeryHeroImg,
+        duration: "1 Year (9 months classes + 3 months training)",
+        timings: [
+            "Morning (11:00am – 2:00pm)",
+            "Evening (2:30pm – 5:30pm)",
+        ],
+        description:
+            "Internationally-oriented diploma covering advanced cakes, breads, viennoiseries, French desserts, chocolates, puff pastry and more.",
+        items: [
+            "Oil, Butter & Milkmaid sponges; Tres Leches; Swiss Roll; Iyengar cake",
+            "Tea time cakes (Whole wheat & jaggery, Marble, Pineapple & Orange upside-down, Chocolate caramel, Semolina, Mawa, Lemon, Banana)",
+            "Brownies (Nutella, Oreo, Red Velvet Brownie)",
+            "Muffins (Tutti frutti, Choco chip, Banana crumble, Orange, Rasmalai)",
+            "Cupcakes (Pineapple buttercream, Chocolate truffle, Red velvet, Vanilla Strawberry)",
+            "Pinata (with sponge & surprise)",
+            "Cheesecakes – 3 baked + 3 no-bake",
+            "Fresh fruit icing & strawberry filling",
+            "Theme cakes: Butterscotch, Top forward (Unicorn), Red velvet buttercream, Farm/Jungle, Truffle, Half naked, Choco-vanilla, Coconut, Full fondant ×3, Monogram tart, Neapolitan",
+            "Fillings & ratios: ganaches (choc/white/caramel), praline, cream cheese, buttercream, lemon curd, apple pie filling, pineapple buttercream",
+            "Chocolate garnishing (balls, 3D hearts, sails, barks)",
+            "Wedding cakes: 2-tier stacking, 3-tier semi-fondant, Chandelier cake",
+            "Cookies (Nankhatai, Coconut, Atta, Jeera, Nutella, Deep dish, Cake rusk, NY Choco chunk, Italian Biscotti, Chocolate oats, Karachi fruit, Cheese crackers, Turkish pistachio)",
+            "Breads (Pav, Burger buns with filling, Stuffed garlic bread, Bread loaf, Pizza dough with filling, Korean buns, Subway bread with filling, Gluten-free loaf, Pita, Stuffed bread kulcha, Cinnamon rolls, Pide, Pizzeria style, Focaccia, Baguette)",
+            "Small desserts (Caramel banana, Fruit custard pudding, Triple chocolate mousse, Coffee verrine, Choco-strawberry verrine, Lotus biscoff, Tiramisu, Mocha cheesecake shots)",
+            "Tarts & pies (Apple, Lemon, Chocolate, Banoffee, Vanilla spinach quiche, Chocolate strawberry)",
+            "Doughnuts & Berliners",
+            "Entremets (Strawberry chocolate, Chocolate hazelnut, Red velvet caramel & cream cheese)",
+            "French desserts (Macaron, Opera)",
+            "Chocolates (Centre-filled, Truffle balls, Coffee bonbon, Coconut fudge, Rose pistachio fudge, Dark chocolate fudge, Red velvet & cream cheese truffle balls, Nutty bar, Orange bonbon)",
+            "Cakesicles & Cake pops",
+            "Puff pastry: cream roll, vol-au-vent, potato puff & shapes",
+            "Ice creams (Vanilla, Chocolate, Oreo, Butterscotch, Strawberry, Blueberry)",
+            "Internationally certified"
+        ],
+    },
+];
 
 const courses: Course[] = [
     {
@@ -366,6 +548,7 @@ const cardVariants = {
 
 export const Courses = () => {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
+    const [openProgramIndex, setOpenProgramIndex] = useState<number | null>(null);
     return (
         <div className="min-h-screen bg-gradient-warm py-20">
             <div className="container mx-auto px-4 relative">
@@ -404,6 +587,78 @@ export const Courses = () => {
                         Unlock your baking potential with our expertly crafted courses, designed for all skill levels. Join a community of passionate bakers and learn from the best!
                     </motion.p>
                 </motion.div>
+
+                {/* Diploma & Certificate Programs */}
+                <motion.div
+                    className="mb-16"
+                    initial="hidden"
+                    animate="visible"
+                    variants={containerVariants}
+                >
+                    <motion.h2 className="text-4xl font-serif font-bold text-foreground mb-8" variants={cardVariants}>
+                        Diploma & Certificate Programs
+                    </motion.h2>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+                        {programs.map((program, idx) => (
+                            <motion.div
+                                key={program.title}
+                                className="bg-background rounded-2xl shadow-warm overflow-hidden hover:shadow-lg transition-all duration-300"
+                                variants={cardVariants}
+                                whileHover={{ scale: 1.02 }}
+                            >
+                                <div className="h-40 w-full overflow-hidden">
+                                    <img src={program.image} alt={program.title} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="p-6">
+                                    <h3 className="text-2xl font-serif font-semibold mb-2">{program.title}</h3>
+                                    <p className="text-muted-foreground mb-4">{program.description}</p>
+                                    <div className="text-sm text-accent mb-2">
+                                        <span>{program.duration}</span>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground mb-4">
+                                        {program.timings.join(" • ")}
+                                    </div>
+                                    <Dialog open={openProgramIndex === idx} onOpenChange={(open) => setOpenProgramIndex(open ? idx : null)}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="hero" size="sm" onClick={() => setOpenProgramIndex(idx)}>View Details</Button>
+                                        </DialogTrigger>
+                                    <DialogContent className="max-w-2xl">
+                                            <DialogHeader>
+                                                <DialogTitle>{program.title}</DialogTitle>
+                                                <DialogDescription>
+                                                    {program.duration} • {program.timings.join(" • ")}
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                        <div className={
+                                            idx >= 3
+                                                ? "mt-3 space-y-3 text-sm max-h-[60vh] overflow-y-auto pr-2"
+                                                : "mt-3 space-y-3 text-sm"
+                                        }>
+                                            <div>
+                                                <p className="font-medium">What you will learn:</p>
+                                                <ul className="list-disc pl-5 space-y-1">
+                                                    {program.items.map((it) => (
+                                                        <li key={it}>{it}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        </DialogContent>
+                                    </Dialog>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                <motion.h2
+                    className="text-4xl font-serif font-bold text-foreground mb-8"
+                    initial="hidden"
+                    animate="visible"
+                    variants={cardVariants}
+                >
+                    Minor Programs
+                </motion.h2>
 
                 <motion.div
                     className="grid md:grid-cols-3 gap-10"
