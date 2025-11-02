@@ -227,7 +227,7 @@ const programs: Program[] = [
         ],
     },
     {
-        title: "6 Months Diploma in Bakery & Confectionery (Eggless)",
+        title: "6 Months Program in Bakery & Confectionery (Eggless)",
         image: pastriesImg,
         duration: "6 Months",
         timings: [
@@ -263,7 +263,7 @@ const programs: Program[] = [
             "Ice creams (Vanilla, Chocolate) & Fillings (Caramel sauce/ganache, Chocolate ganache, Almond praline, Buttercream, Cream cheese, American Buttercream)",
         ],
     },
-    {
+   /* {
         title: "1 Year Advance International Diploma in Bakery & Confectionery",
         image: bakeryHeroImg,
         duration: "1 Year (9 months classes + 3 months training)",
@@ -299,7 +299,7 @@ const programs: Program[] = [
             "Ice creams (Vanilla, Chocolate, Oreo, Butterscotch, Strawberry, Blueberry)",
             "Internationally certified"
         ],
-    },
+    }, */
 ];
 
 const courses: Course[] = [
@@ -596,7 +596,7 @@ export const Courses = () => {
                     variants={containerVariants}
                 >
                     <motion.h2 className="text-4xl font-serif font-bold text-foreground mb-8" variants={cardVariants}>
-                        Diploma & Certificate Programs
+                        Certificate Programs
                     </motion.h2>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {programs.map((program, idx) => (
@@ -622,16 +622,16 @@ export const Courses = () => {
                                         <DialogTrigger asChild>
                                             <Button variant="hero" size="sm" onClick={() => setOpenProgramIndex(idx)}>View Details</Button>
                                         </DialogTrigger>
-                                    <DialogContent className="max-w-2xl">
-                                            <DialogHeader>
+                                    <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+                                            <DialogHeader className="flex-shrink-0">
                                                 <DialogTitle>{program.title}</DialogTitle>
                                                 <DialogDescription>
                                                     {program.duration} • {program.timings.join(" • ")}
                                                 </DialogDescription>
                                             </DialogHeader>
                                         <div className={
-                                            idx >= 3
-                                                ? "mt-3 space-y-3 text-sm max-h-[60vh] overflow-y-auto pr-2"
+                                            idx >= 2
+                                                ? "mt-3 space-y-3 text-sm max-h-[60vh] md:max-h-[65vh] overflow-y-auto pr-2 flex-1"
                                                 : "mt-3 space-y-3 text-sm"
                                         }>
                                             <div>
