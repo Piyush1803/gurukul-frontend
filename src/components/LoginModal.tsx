@@ -26,7 +26,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-bakery-chocolate/50 backdrop-blur-md z-50"
           />
 
           {/* Modal */}
@@ -37,10 +37,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }: LoginModalProps)
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed inset-0 flex items-center justify-center p-4 z-50"
           >
-            <div className="w-full max-w-md bg-background rounded-2xl shadow-warm border p-6">
+            <div className="w-full max-w-md glass-panel rounded-3xl shadow-warm p-6 sm:p-8">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-serif font-semibold">
+                <h2 className="font-display text-2xl font-semibold">
                   {isLogin ? "Welcome Back" : "Create Account"}
                 </h2>
                 <Button variant="ghost" size="icon" onClick={onClose}>

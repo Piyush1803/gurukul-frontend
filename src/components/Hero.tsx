@@ -1,131 +1,167 @@
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import gsap from "gsap";
 import { Button } from "@/components/ui/button";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Wheat, Cookie, Croissant } from "lucide-react";
 import heroImage from "@/assets/bakery-hero.jpg";
 import { Link } from "react-router-dom";
+import { MagneticButton } from "@/components/motion/MagneticButton";
+import { FloatingParticles } from "@/components/effects/FloatingParticles";
+import { Link as ScrollLink } from "react-scroll";
+
+const floatingIngredients = [
+  { Icon: Wheat, className: "top-[18%] left-[8%] sm:left-[12%]", delay: 0 },
+  { Icon: Croissant, className: "top-[25%] right-[6%] sm:right-[10%]", delay: 0.5 },
+  { Icon: Cookie, className: "bottom-[32%] left-[12%]", delay: 1 },
+  { Icon: Wheat, className: "bottom-[28%] right-[14%]", delay: 1.5, size: "sm" },
+];
 
 export const Hero = () => {
-  console.log('Hero component rendering...');
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.3,
-        delayChildren: 0.2,
-      },
-    },
-  };
+  const containerRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
 
-  const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        ease: [0.6, -0.05, 0.01, 0.99] as any,
-      },
-    },
-  };
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
+  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 0.5], ["0%", "15%"]);
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced || !titleRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.from(titleRef.current!.querySelectorAll(".hero-word"), {
+        y: 80,
+        opacity: 0,
+        rotateX: -40,
+        stagger: 0.08,
+        duration: 1,
+        ease: "power3.out",
+        delay: 0.2,
+      });
+      if (subtitleRef.current) {
+        gsap.from(subtitleRef.current, {
+          y: 30,
+          opacity: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          delay: 0.7,
+        });
+      }
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  const titleWords = ["Gurukul", "Bakery"];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background with gradient overlay */}
-      <div className="absolute inset-0">
+    <section
+      ref={containerRef}
+      className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden"
+    >
+      <motion.div className="absolute inset-0 scale-105" style={{ y: imageY }}>
         <img
           src={heroImage}
-          alt="Gurukul bakery with fresh pastries"
-          className="w-full h-full object-cover"
+          alt="Gurukul artisan bakery"
+          className="h-full w-full object-cover"
+          fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-hero opacity-90" />
-      </div>
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <div className="absolute inset-0 bg-gradient-glow" />
+      </motion.div>
 
-      {/* Content */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="relative z-10 text-center px-4 max-w-4xl mx-auto"
-      >
-        <motion.h1
-          variants={itemVariants}
-          className="text-5xl md:text-7xl font-serif font-bold text-foreground mb-6"
-        >
-          Gurukul Bakery
-        </motion.h1>
+      <FloatingParticles />
 
-        <motion.p
-          variants={itemVariants}
-          className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed"
-        >
-          Fresh baked goods crafted with love and traditional techniques.
-          Discover our daily selection and learn the art of baking.
-        </motion.p>
-
+      {floatingIngredients.map(({ Icon, className, delay, size }) => (
         <motion.div
-          variants={itemVariants}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          key={className}
+          className={`absolute hidden sm:flex items-center justify-center rounded-2xl glass-panel p-3 text-bakery-gold ${className}`}
+          animate={{ y: [0, -14, 0], rotate: [0, 6, -6, 0] }}
+          transition={{ duration: 5 + delay, repeat: Infinity, delay, ease: "easeInOut" }}
         >
-          <Link to="/products">
-            <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.97 }}>
-              <Button variant="hero" size="lg" className="text-lg px-8 py-3">
+          <Icon className={size === "sm" ? "h-6 w-6" : "h-8 w-8"} />
+        </motion.div>
+      ))}
+
+      <motion.div
+        style={{ opacity: contentOpacity, y: contentY }}
+        className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto pt-20 pb-28"
+      >
+        <motion.span
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="inline-block mb-6 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-bakery-gold border border-bakery-gold/30 bg-bakery-chocolate/30 backdrop-blur-md"
+        >
+          Artisan · Since 2012
+        </motion.span>
+
+        <h1
+          ref={titleRef}
+          className="font-display text-display-lg text-bakery-cream mb-6 perspective-[800px]"
+        >
+          {titleWords.map((word) => (
+            <span key={word} className="hero-word inline-block mr-[0.25em]">
+              {word}
+            </span>
+          ))}
+        </h1>
+
+        <p
+          ref={subtitleRef}
+          className="text-base sm:text-xl md:text-2xl text-bakery-cream/85 mb-10 max-w-2xl mx-auto leading-relaxed font-light"
+        >
+          Fresh baked goods crafted with love. Discover our daily selection and master the art of baking.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+          <MagneticButton>
+            <Link to="/products">
+              <Button variant="hero" size="lg" className="w-full sm:w-auto text-base px-10 py-6 rounded-full shadow-glow">
                 Order Now
               </Button>
-            </motion.div>
-          </Link>
-
-          <Link to="/courses">
-            <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.97 }}>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-3 bg-background/10 border-foreground/20 text-foreground hover:bg-background/20">
+            </Link>
+          </MagneticButton>
+          <MagneticButton>
+            <Link to="/courses">
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto text-base px-10 py-6 rounded-full border-bakery-cream/30 bg-bakery-cream/10 text-bakery-cream hover:bg-bakery-cream/20 backdrop-blur-sm"
+              >
                 View Courses
               </Button>
-            </motion.div>
-          </Link>
-        </motion.div>
+            </Link>
+          </MagneticButton>
+        </div>
 
         <motion.div
-          variants={itemVariants}
-          className="mt-16"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="mt-16 sm:mt-20"
         >
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="inline-flex flex-col items-center text-muted-foreground"
+          <ScrollLink
+            to="about"
+            smooth
+            duration={800}
+            offset={-80}
+            className="inline-flex flex-col items-center text-bakery-cream/60 hover:text-bakery-gold transition-colors cursor-pointer"
           >
-            <span className="text-sm mb-2">Scroll to explore</span>
-            <ArrowDown className="h-5 w-5" />
-          </motion.div>
+            <span className="text-xs uppercase tracking-widest mb-2">Discover</span>
+            <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+              <ArrowDown className="h-5 w-5" />
+            </motion.div>
+          </ScrollLink>
         </motion.div>
       </motion.div>
 
-      {/* Floating elements */}
-      <motion.div
-        animate={{
-          y: [0, -20, 0],
-          rotate: [0, 5, 0]
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute top-20 left-10 w-16 h-16 bg-bakery-orange rounded-full opacity-20 blur-xl"
-      />
-
-      <motion.div
-        animate={{
-          y: [0, 20, 0],
-          rotate: [0, -5, 0]
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-        className="absolute bottom-32 right-16 w-24 h-24 bg-bakery-gold rounded-full opacity-15 blur-xl"
-      />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent z-10" />
     </section>
   );
 };

@@ -1,21 +1,20 @@
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource/playfair-display/400.css";
+import "@fontsource/playfair-display/600.css";
+import "@fontsource/playfair-display/700.css";
+import "@fontsource/cormorant-garamond/500.css";
+import "@fontsource/cormorant-garamond/600.css";
+import "@fontsource/cormorant-garamond/700.css";
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
 
-// Global backend URL configuration
-export const API_BASE_URL = 'https://gurukulbakery.com/api';
-// export const API_BASE_URL = 'http://localhost:3001';
+export const API_BASE_URL = "https://gurukulbakery.com/api";
 
-console.log('Main.tsx loaded, API_BASE_URL:', API_BASE_URL);
-
-try {
-  const rootElement = document.getElementById("root");
-  if (!rootElement) {
-    throw new Error('Root element not found');
-  }
-  console.log('Root element found, rendering App...');
+const rootElement = document.getElementById("root");
+if (rootElement) {
   createRoot(rootElement).render(<App />);
-  console.log('App rendered successfully');
-} catch (error) {
-  console.error('Error rendering app:', error);
 }

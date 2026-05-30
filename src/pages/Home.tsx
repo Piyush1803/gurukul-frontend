@@ -1,257 +1,168 @@
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Hero } from "@/components/Hero";
-import { Clock, Award, Users, Heart, Star, Sparkles } from "lucide-react";
+import { Clock, Award, Users, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import pastriesImage from "@/assets/pastries.jpg";
 import bakingClassImage from "@/assets/baking-class.jpg";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { SectionHeader } from "@/components/bakery/SectionHeader";
+import { Reveal } from "@/components/motion/Reveal";
+import { LazyImage } from "@/components/motion/LazyImage";
+import { MagneticButton } from "@/components/motion/MagneticButton";
+import { Spotlight } from "@/components/effects/Spotlight";
+import { Marquee } from "@/components/bakery/Marquee";
+
+const features = [
+  {
+    icon: Clock,
+    title: "Fresh Daily",
+    description: "Baked every morning with traditional techniques and premium ingredients.",
+  },
+  {
+    icon: Award,
+    title: "Premium Quality",
+    description: "Finest local ingredients, artisan methods, uncompromising standards.",
+  },
+  {
+    icon: Users,
+    title: "Expert Courses",
+    description: "Learn from master bakers with decades of professional experience.",
+  },
+];
+
+const marqueeItems = [
+  "Artisan Sourdough",
+  "Butter Croissants",
+  "Celebration Cakes",
+  "French Pastries",
+  "Eggless Specialties",
+  "Baking Courses",
+];
 
 export const Home = () => {
-  console.log('Home component rendering...');
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 360]);
-
-  const features = [
-    {
-      icon: Clock,
-      title: "Fresh Daily",
-      description: "All our products are baked fresh every morning using traditional techniques."
-    },
-    {
-      icon: Award,
-      title: "Premium Quality",
-      description: "We use only the finest ingredients sourced from local suppliers."
-    },
-    {
-      icon: Users,
-      title: "Expert Courses",
-      description: "Learn from master bakers with over 20 years of experience."
-    }
-  ];
-
-  const floatingIcons = [
-    { icon: Heart, delay: 0, x: "10%", y: "20%" },
-    { icon: Star, delay: 0.5, x: "80%", y: "15%" },
-    { icon: Sparkles, delay: 1, x: "15%", y: "70%" },
-    { icon: Clock, delay: 1.5, x: "85%", y: "75%" },
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 30, opacity: 0, scale: 0.9 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.7,
-        ease: [0.6, -0.05, 0.01, 0.99] as any,
-      },
-    },
-  };
-
-  const floatingAnimation = {
-    y: [-10, 10, -10],
-    rotate: [0, 5, -5, 0],
-    scale: [1, 1.1, 1],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      ease: "easeInOut" as const,
-    },
-  };
-
-  const titleVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: [0.6, -0.05, 0.01, 0.99] as any,
-      },
-    },
-  };
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
 
   return (
-    <div className="min-h-screen" ref={ref}>
+    <div ref={ref}>
       <Hero />
 
-      {/* Floating Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-10">
-        {floatingIcons.map((item, index) => (
-          <motion.div
-            key={index}
-            className="absolute"
-            style={{ left: item.x, top: item.y }}
-            animate={floatingAnimation}
-            transition={{ delay: item.delay }}
-          >
-            <motion.div
-              whileHover={{ scale: 1.2 }}
-              className="w-8 h-8 text-primary/20"
+      <div className="border-y border-border/50 bg-bakery-chocolate py-3 overflow-hidden">
+        <Marquee speed="fast">
+          {marqueeItems.map((item) => (
+            <span
+              key={item}
+              className="mx-6 text-sm font-medium uppercase tracking-[0.2em] text-bakery-cream/90 whitespace-nowrap flex items-center gap-6"
             >
-              <item.icon className="w-full h-full" />
-            </motion.div>
-          </motion.div>
-        ))}
+              <Sparkles className="h-3 w-3 text-bakery-gold inline" />
+              {item}
+            </span>
+          ))}
+        </Marquee>
       </div>
 
-      {/* Features Section */}
-      <section className="py-20 bg-gradient-warm relative overflow-hidden">
-        {/* Parallax Background Elements */}
-        <motion.div
-          style={{ y }}
-          className="absolute inset-0 opacity-5"
-        >
-          <div className="absolute top-20 left-10 w-32 h-32 bg-primary rounded-full" />
-          <div className="absolute bottom-20 right-10 w-24 h-24 bg-accent rounded-full" />
+      <section className="section-padding bg-gradient-warm relative overflow-hidden">
+        <motion.div style={{ y }} className="absolute inset-0 opacity-[0.04] pointer-events-none">
+          <div className="absolute top-20 left-10 w-40 h-40 rounded-full bg-primary" />
+          <div className="absolute bottom-20 right-10 w-32 h-32 rounded-full bg-bakery-gold" />
         </motion.div>
 
-        <div className="container mx-auto px-4 relative z-10">
-          {/* Why Choose Us: static text, no animation */}
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-6">
-              <span className="inline-block">Why</span>
-              <span className="inline-block ml-3">Choose Us</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Experience the perfect blend of tradition and innovation in every bite
-            </p>
-          </div>
+        <div className="container-bakery relative">
+          <SectionHeader
+            eyebrow="Our Promise"
+            title="Why Choose Gurukul"
+            description="The perfect blend of Punjab tradition and modern artisan craft in every bite."
+          />
 
-          {/* Feature cards: no rotate/entrance animation */}
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {features.map((feature, index) => (
-              <div
-                key={feature.title}
-                className="text-center p-8 rounded-2xl bg-background shadow-soft hover:shadow-warm transition-all duration-300 cursor-pointer"
-                style={{ transition: 'transform 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                <div
-                  className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl mb-6 relative"
-                >
-                  <feature.icon className="h-8 w-8 text-primary-foreground" />
-                  <div
-                    className="absolute inset-0 bg-white/20 rounded-2xl"
-                  />
-                </div>
-                <h3 className="text-2xl font-serif font-semibold mb-4">
-                  {feature.title}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
+              <Reveal key={feature.title} delay={index * 0.1}>
+                <Spotlight className="h-full rounded-3xl">
+                  <motion.div
+                    whileHover={{ y: -6 }}
+                    className="h-full text-center p-8 sm:p-10 rounded-3xl bg-card border border-border/50 shadow-card hover:shadow-warm transition-shadow duration-500"
+                  >
+                    <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-primary rounded-2xl mb-6 shadow-soft">
+                      <feature.icon className="h-7 w-7 text-primary-foreground" />
+                    </div>
+                    <h3 className="font-display text-2xl font-semibold mb-3">{feature.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                      {feature.description}
+                    </p>
+                  </motion.div>
+                </Spotlight>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Products Preview: remove side/rotate/entrance animation */}
-      <section className="py-20 relative">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6">
+      <section className="section-padding relative">
+        <div className="container-bakery">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <Reveal direction="left">
+              <span className="text-xs uppercase tracking-[0.2em] text-bakery-orange font-semibold">Our Collection</span>
+              <h2 className="font-display text-display-sm text-foreground mt-3 mb-6">
                 Gurukul Baked Goods
               </h2>
-              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                From flaky croissants to hearty sourdough, every item is crafted with passion
-                and expertise. Our daily selection features both classic favorites and seasonal
-                specialties.
+              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                From flaky croissants to hearty sourdough — classic favorites and seasonal specialties, crafted with passion.
               </p>
-              <div>
+              <MagneticButton>
                 <Link to="/products">
-                  <Button
-                    variant="bakery"
-                    size="lg"
-                    className="text-lg px-8 py-3 hover:scale-105 transition-transform duration-200"
-                  >
-                    Browse Products
+                  <Button variant="bakery" size="lg" className="rounded-full px-8 gap-2">
+                    Browse Products <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-              </div>
-            </div>
+              </MagneticButton>
+            </Reveal>
 
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-primary opacity-20 rounded-2xl blur-xl" />
-              <img
-                src={pastriesImage}
-                alt="Assorted pastries and baked goods"
-                className="rounded-2xl shadow-warm w-full relative z-10"
-              />
-              <div className="absolute inset-0 bg-gradient-primary opacity-10 rounded-2xl z-20" />
-              {/* Floating sparkles */}
-              <div className="absolute top-4 right-4 text-accent opacity-60 z-30">
-                <Sparkles className="w-6 h-6" />
+            <Reveal direction="right" delay={0.15}>
+              <div className="relative group">
+                <div className="absolute -inset-4 bg-gradient-primary opacity-20 rounded-3xl blur-2xl" />
+                <LazyImage
+                  src={pastriesImage}
+                  alt="Assorted pastries"
+                  wrapperClassName="rounded-3xl aspect-[4/3] shadow-warm"
+                  className="group-hover:scale-105 transition-transform duration-700"
+                />
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Courses Preview: remove side/rotate/entrance animation */}
-      <section className="py-20 bg-gradient-warm relative overflow-hidden">
-        {/* Parallax rotating element (keep as is) */}
-        <motion.div
-          style={{ rotate }}
-          className="absolute top-20 right-20 w-20 h-20 border-2 border-primary/10 rounded-full"
-        />
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="relative order-2 lg:order-1 group">
-              <div className="absolute inset-0 bg-gradient-primary opacity-20 rounded-2xl blur-xl" />
-              <img
-                src={bakingClassImage}
-                alt="Baking class in session"
-                className="rounded-2xl shadow-warm w-full relative z-10"
-              />
-              <div className="absolute inset-0 bg-gradient-primary opacity-10 rounded-2xl z-20" />
-              {/* Floating heart */}
-              <div className="absolute bottom-4 left-4 text-primary opacity-70 z-30">
-                <Heart className="w-6 h-6" />
+      <section className="section-padding bg-gradient-warm relative overflow-hidden">
+        <div className="container-bakery">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <Reveal direction="left" className="order-2 lg:order-1">
+              <div className="relative group">
+                <div className="absolute -inset-4 bg-bakery-gold/20 rounded-3xl blur-2xl" />
+                <LazyImage
+                  src={bakingClassImage}
+                  alt="Baking class"
+                  wrapperClassName="rounded-3xl aspect-[4/3] shadow-warm"
+                  className="group-hover:scale-105 transition-transform duration-700"
+                />
               </div>
-            </div>
-            <div className="order-1 lg:order-2">
-              <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6">
-                Master the Art
-              </h2>
-              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                Join our comprehensive baking courses and learn professional techniques
-                from experienced instructors. Perfect for beginners and advanced bakers alike.
+            </Reveal>
+
+            <Reveal direction="right" delay={0.1} className="order-1 lg:order-2">
+              <span className="text-xs uppercase tracking-[0.2em] text-bakery-orange font-semibold">Learn & Create</span>
+              <h2 className="font-display text-display-sm text-foreground mt-3 mb-6">Master the Art</h2>
+              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                Comprehensive baking courses from experienced instructors — for beginners and advanced bakers alike.
               </p>
-              <div>
+              <MagneticButton>
                 <Link to="/courses">
-                  <Button
-                    variant="hero"
-                    size="lg"
-                    className="text-lg px-8 py-3 hover:scale-105 transition-transform duration-200"
-                  >
-                    View Courses
+                  <Button variant="hero" size="lg" className="rounded-full px-8 gap-2">
+                    View Courses <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-              </div>
-            </div>
+              </MagneticButton>
+            </Reveal>
           </div>
         </div>
       </section>
