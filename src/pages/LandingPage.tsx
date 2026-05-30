@@ -4,21 +4,19 @@ import { scroller } from "react-scroll";
 import { Home } from "@/pages/Home";
 import { About } from "@/pages/About";
 import Products from "@/pages/Products";
+import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
+import { GallerySection } from "@/components/sections/GallerySection";
+import { ContactSection } from "@/components/sections/ContactSection";
 
 export const LandingPage = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const target = (location.state as any)?.scrollTo as string | undefined;
+    const target = (location.state as { scrollTo?: string })?.scrollTo;
     if (target) {
-      // delay to ensure sections are mounted
       setTimeout(() => {
-        scroller.scrollTo(target, {
-          smooth: true,
-          duration: 600,
-          offset: -70,
-        });
-      }, 50);
+        scroller.scrollTo(target, { smooth: true, duration: 600, offset: -80 });
+      }, 100);
     }
   }, [location]);
 
@@ -27,14 +25,15 @@ export const LandingPage = () => {
       <section id="home">
         <Home />
       </section>
-
       <section id="about">
         <About />
       </section>
-
       <section id="products">
-        <Products />
+        <Products embedded />
       </section>
+      <TestimonialsSection />
+      <GallerySection />
+      <ContactSection />
     </div>
   );
 };

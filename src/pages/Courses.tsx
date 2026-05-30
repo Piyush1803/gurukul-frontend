@@ -74,9 +74,9 @@ const ContactForm = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.6, -0.05, 0.01, 0.99] }}
             viewport={{ once: true }}
-            className="max-w-xl mx-auto mt-24 bg-background rounded-2xl shadow-warm p-10"
+            className="max-w-xl mx-auto mt-24 glass-panel rounded-3xl p-8 sm:p-10"
         >
-            <h2 className="text-3xl font-serif font-bold mb-6 text-center">Contact Us Now for Courses</h2>
+            <h2 className="font-display text-3xl font-bold mb-6 text-center">Contact Us for Courses</h2>
             <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>
                     <label className="block text-left text-muted-foreground mb-1 font-medium">Name</label>
@@ -550,24 +550,8 @@ export const Courses = () => {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
     const [openProgramIndex, setOpenProgramIndex] = useState<number | null>(null);
     return (
-        <div className="min-h-screen bg-gradient-warm py-20">
-            <div className="container mx-auto px-4 relative">
-                {/* Contact Us WhatsApp Button - top right, theme color */}
-                <a
-                    href="https://wa.me/918918215576"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute top-0 right-0 mt-2 mr-8 z-50"
-                >
-                    <motion.button
-                        whileHover={{ scale: 1.08 }}
-                        whileTap={{ scale: 0.97 }}
-                        className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5 py-2 rounded-full shadow-lg transition-colors duration-200"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M20.52 3.48A12.07 12.07 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.19-1.62A11.97 11.97 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52ZM12 22c-1.77 0-3.5-.46-5.01-1.33l-.36-.21-3.68.96.98-3.59-.23-.37A9.97 9.97 0 0 1 2 12C2 6.48 6.48 2 12 2c2.65 0 5.15 1.03 7.04 2.92A9.97 9.97 0 0 1 22 12c0 5.52-4.48 10-10 10Zm5.2-7.55c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.61-.47-.16-.01-.35-.01-.54-.01-.19 0-.5.07-.76.34-.26.27-1 1-.99 2.43.01 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 4.93 4.23.69.3 1.23.48 1.65.61.69.22 1.32.19 1.81.12.55-.08 1.65-.67 1.89-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33Z" /></svg>
-                        Contact Us
-                    </motion.button>
-                </a>
+        <div className="min-h-screen bg-gradient-warm pt-20 sm:pt-24 pb-20 section-padding">
+            <div className="container-bakery relative">
                 <motion.div
                     initial="hidden"
                     animate="visible"
@@ -575,7 +559,7 @@ export const Courses = () => {
                     className="text-center mb-16"
                 >
                     <motion.h1
-                        className="text-5xl md:text-6xl font-serif font-bold text-foreground mb-6"
+                        className="font-display text-display-sm md:text-display text-foreground mb-6"
                         variants={cardVariants}
                     >
                         Explore Our Courses
@@ -602,7 +586,7 @@ export const Courses = () => {
                         {programs.map((program, idx) => (
                             <motion.div
                                 key={program.title}
-                                className="bg-background rounded-2xl shadow-warm overflow-hidden hover:shadow-lg transition-all duration-300"
+                                className="bg-card rounded-3xl border border-border/50 shadow-card overflow-hidden hover:shadow-warm transition-all duration-300"
                                 variants={cardVariants}
                                 whileHover={{ scale: 1.02 }}
                             >
@@ -629,11 +613,7 @@ export const Courses = () => {
                                                     {program.duration} • {program.timings.join(" • ")}
                                                 </DialogDescription>
                                             </DialogHeader>
-                                        <div className={
-                                            idx >= 2
-                                                ? "mt-3 space-y-3 text-sm max-h-[60vh] md:max-h-[65vh] overflow-y-auto pr-2 flex-1"
-                                                : "mt-3 space-y-3 text-sm"
-                                        }>
+                                        <div className="mt-3 space-y-3 text-sm max-h-[55vh] sm:max-h-[60vh] md:max-h-[65vh] overflow-y-auto pr-2 flex-1">
                                             <div>
                                                 <p className="font-medium">What you will learn:</p>
                                                 <ul className="list-disc pl-5 space-y-1">
@@ -669,7 +649,7 @@ export const Courses = () => {
                     {courses.map((course, idx) => (
                         <motion.div
                             key={course.title}
-                            className="bg-background rounded-2xl shadow-warm p-8 text-center hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden"
+                            className="bg-card rounded-3xl border border-border/50 shadow-card p-8 text-center hover:shadow-warm transition-all duration-300 cursor-pointer relative overflow-hidden"
                             variants={cardVariants}
                             whileHover={{ scale: 1.04 }}
                         >
@@ -689,14 +669,14 @@ export const Courses = () => {
                                 <DialogTrigger asChild>
                                     <Button variant="hero" size="sm" className="mt-2" onClick={() => setOpenIndex(idx)}>Learn More</Button>
                                 </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
+                                <DialogContent className="max-w-md max-h-[85vh] flex flex-col">
+                                    <DialogHeader className="flex-shrink-0">
                                         <DialogTitle>{course.title}</DialogTitle>
                                         <DialogDescription>
                                             {course.description} • {course.duration} • {course.price}
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <div className="mt-2 text-sm">
+                                    <div className="mt-2 text-sm overflow-y-auto pr-2 flex-1 max-h-[55vh]">
                                         <ul className="list-disc pl-5 space-y-1 text-left">
                                             {course.items.map((it) => (
                                                 <li key={it}>{it}</li>

@@ -1,0 +1,6 @@
+import{j as e,m as t}from"./motion-XgEBxSkk.js";import{L as i}from"./vendor-DAlDBgF4.js";import{c as a,B as s}from"./index-8oXAtli9.js";import"./query-LxsRv2Wf.js";/**
+ * @license lucide-react v0.462.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const r=a("CircleCheckBig",[["path",{d:"M21.801 10A10 10 0 1 1 17 3.335",key:"yps3ct"}],["path",{d:"m9 11 3 3L22 4",key:"1pflzl"}]]),d=()=>e.jsx("div",{className:"min-h-[70vh] flex items-center justify-center p-8 text-center pt-24",children:e.jsxs(t.div,{initial:{opacity:0,scale:.95},animate:{opacity:1,scale:1},className:"max-w-lg glass-panel rounded-3xl p-10 sm:p-12",children:[e.jsx(t.div,{initial:{scale:0},animate:{scale:1},transition:{type:"spring",delay:.2},children:e.jsx(r,{className:"mx-auto mb-6 h-16 w-16 text-bakery-gold"})}),e.jsx("h1",{className:"font-display text-3xl sm:text-4xl font-bold mb-3",children:"Order Placed!"}),e.jsx("p",{className:"text-muted-foreground mb-8 leading-relaxed",children:"Thank you for your order. We're preparing your delicious items with care."}),e.jsx(i,{to:"/",children:e.jsx(s,{variant:"hero",size:"lg",children:"Continue Shopping"})})]})});export{d as default};

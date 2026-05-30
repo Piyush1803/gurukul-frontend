@@ -1,9 +1,11 @@
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Plus, Star } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
 import { API_BASE_URL } from "../main";
+import { SectionHeader } from "@/components/bakery/SectionHeader";
+import { ProductCard, type ProductCardData } from "@/components/bakery/ProductCard";
+import { Reveal } from "@/components/motion/Reveal";
+import { cn } from "@/lib/utils";
 
 interface Product {
   id: string;
@@ -11,77 +13,82 @@ interface Product {
   description: string | null;
   price: number;
   imageUrl: string;
-  type: 'deliciousCake' | 'dryCake' | 'cupCake' | 'brownie' | 'cookie' | 'mousse' | 'donut';
+  type: "deliciousCake" | "dryCake" | "cupCake" | "brownie" | "cookie" | "mousse" | "donut";
   flavor?: string;
   quantity?: number;
   rating?: number;
 }
 
-const Products = () => {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'deliciousCakes' | 'dryCakes' | 'cupCakes' | 'brownies' | 'cookies' | 'mousses' | 'donuts'>('all');
+type CategoryKey =
+  | "all"
+  | "deliciousCakes"
+  | "dryCakes"
+  | "cupCakes"
+  | "brownies"
+  | "cookies"
+  | "mousses"
+  | "donuts";
+
+interface ProductsProps {
+  embedded?: boolean;
+}
+
+const Products = ({ embedded = false }: ProductsProps) => {
+  const [activeCategory, setActiveCategory] = useState<CategoryKey>("all");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const { addItem } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
-      console.log('Products: Starting to fetch products...');
       setLoading(true);
       try {
         const baseUrl = `${API_BASE_URL}/product`;
-        console.log('Products: Using baseUrl:', baseUrl);
         const categoryMap = {
-          all: '',
-          deliciousCakes: 'deliciousCake',
-          dryCakes: 'dryCake',
-          cupCakes: 'cupCake',
-          brownies: 'brownie',
-          cookies: 'cookie',
-          mousses: 'mousse',
-          donuts: 'donut',
+          all: "",
+          deliciousCakes: "deliciousCake",
+          dryCakes: "dryCake",
+          cupCakes: "cupCake",
+          brownies: "brownie",
+          cookies: "cookie",
+          mousses: "mousse",
+          donuts: "donut",
         } as const;
 
         const selectedType = categoryMap[activeCategory];
         const url =
-          activeCategory === 'all'
-            ? `${baseUrl}/all`
-            : `${baseUrl}/all/${selectedType}`;
+          activeCategory === "all" ? `${baseUrl}/all` : `${baseUrl}/all/${selectedType}`;
 
-        console.log('Products: Fetching from URL:', url);
         const response = await fetch(url);
-        console.log('Products: Response status:', response.status);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        console.log('Products: Response data:', result);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-        if (activeCategory === 'all') {
-          const { 
-            deliciousCakes = [], 
-            dryCakes = [], 
-            cupCakes = [], 
-            brownies = [], 
-            cookies = [], 
-            mousses = [], 
-            donuts = [] 
+        const result = await response.json();
+
+        if (activeCategory === "all") {
+          const {
+            deliciousCakes = [],
+            dryCakes = [],
+            cupCakes = [],
+            brownies = [],
+            cookies = [],
+            mousses = [],
+            donuts = [],
           } = result.data || {};
-          const allProducts = [...deliciousCakes, ...dryCakes, ...cupCakes, ...brownies, ...cookies, ...mousses, ...donuts];
-          console.log('Products: Setting products:', allProducts.length, 'items');
-          setProducts(allProducts);
+          setProducts([
+            ...deliciousCakes,
+            ...dryCakes,
+            ...cupCakes,
+            ...brownies,
+            ...cookies,
+            ...mousses,
+            ...donuts,
+          ]);
         } else {
-          const products = Array.isArray(result.data) ? result.data : [];
-          console.log('Products: Setting products:', products.length, 'items');
-          setProducts(products);
+          setProducts(Array.isArray(result.data) ? result.data : []);
         }
-      } catch (err: any) {
-        console.error("Products: Fetch error:", err);
-        console.log('Products: Setting empty products array due to error');
+      } catch {
         setProducts([]);
       } finally {
-        console.log('Products: Setting loading to false');
         setLoading(false);
       }
     };
@@ -89,15 +96,15 @@ const Products = () => {
     fetchProducts();
   }, [activeCategory]);
 
-  const categories = [
-    { key: 'all' as const, label: 'All Products' },
-    { key: 'deliciousCakes' as const, label: 'Delicious Cakes' },
-    { key: 'dryCakes' as const, label: 'Dry Cakes' },
-    { key: 'cupCakes' as const, label: 'Cup Cakes' },
-    { key: 'donuts' as const, label: 'Donuts' },
-    { key: 'brownies' as const, label: 'Brownies' },
-    { key: 'cookies' as const, label: 'Cookies' },
-    { key: 'mousses' as const, label: 'Mousse' },
+  const categories: { key: CategoryKey; label: string }[] = [
+    { key: "all", label: "All" },
+    { key: "deliciousCakes", label: "Cakes" },
+    { key: "dryCakes", label: "Dry Cakes" },
+    { key: "cupCakes", label: "Cupcakes" },
+    { key: "donuts", label: "Donuts" },
+    { key: "brownies", label: "Brownies" },
+    { key: "cookies", label: "Cookies" },
+    { key: "mousses", label: "Mousse" },
   ];
 
   const handleAddToCart = (productId: string) => {
@@ -114,134 +121,100 @@ const Products = () => {
     );
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.6, -0.05, 0.01, 0.99] as any,
-      },
-    },
-  };
+  const toCardData = (p: Product, index: number): ProductCardData => ({
+    id: p.id,
+    name: p.name ?? p.flavor ?? "Item",
+    description: p.description,
+    price: p.price,
+    imageUrl: p.imageUrl,
+    rating: p.rating,
+    isFresh: index % 3 === 0,
+    isPopular: (p.rating ?? 0) >= 4 || index % 4 === 1,
+  });
 
   return (
-    <div className="min-h-screen pt-16">
-      <section className="py-20 bg-gradient-hero">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-5xl md:text-7xl font-serif font-bold text-foreground mb-6">
-              Our Products
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Fresh baked goods made with love!
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    <div className={cn(!embedded && "pt-16 sm:pt-20 min-h-screen")}>
+      {!embedded && (
+        <section className="section-padding pb-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-glow pointer-events-none" />
+          <div className="container-bakery relative">
+            <SectionHeader
+              eyebrow="The Menu"
+              title="Our Products"
+              description="Fresh baked goods made with love — order your favorites today."
+            />
+          </div>
+        </section>
+      )}
 
-      <section className="py-12 border-b">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-wrap justify-center gap-4"
-          >
-            {categories.map((category) => (
-              <Button
-                key={category.key}
-                variant={activeCategory === category.key ? 'bakery' : 'outline'}
-                onClick={() => setActiveCategory(category.key)}
-                className="transition-all duration-300"
-              >
-                {category.label}
-              </Button>
-            ))}
-          </motion.div>
+      {embedded && (
+        <div className="container-bakery pt-8 sm:pt-12">
+          <SectionHeader
+            eyebrow="The Menu"
+            title="Fresh From the Oven"
+            description="Explore our daily selection of cakes, pastries, and sweet delights."
+          />
         </div>
-      </section>
+      )}
 
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          {loading ? (
-            <div className="text-center py-20 text-xl text-muted-foreground">Loading...</div>
-          ) : products.length > 0 ? (
-            <motion.div
-              key={activeCategory}
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {products.map((product) => (
-                <motion.div
-                  key={product.id}
-                  variants={itemVariants}
-                  whileHover={{ y: -10, scale: 1.02 }}
-                  className="bg-background rounded-2xl shadow-soft hover:shadow-warm transition-all duration-300 overflow-hidden border"
+      <section className={cn("pb-8", embedded ? "pt-0" : "")}>
+        <div className="container-bakery">
+          <Reveal>
+            <div className="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center scrollbar-hide">
+              {categories.map((category) => (
+                <button
+                  key={category.key}
+                  type="button"
+                  onClick={() => setActiveCategory(category.key)}
+                  className={cn(
+                    "shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300",
+                    activeCategory === category.key
+                      ? "bg-gradient-primary text-primary-foreground shadow-warm scale-105"
+                      : "bg-card border border-border/60 text-muted-foreground hover:border-primary/30 hover:text-primary"
+                  )}
                 >
-                  <div className="aspect-video bg-gradient-warm relative overflow-hidden">
-                    <img
-                      src={product.imageUrl || "https://via.placeholder.com/300x200?text=No+Image"}
-                      alt={product.name ?? product.flavor ?? "Product"}
-                      className="w-full h-full object-cover"
-                    />
-                    {product.rating && (
-                      <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm text-foreground px-2 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                        <Star className="h-3 w-3 fill-bakery-gold text-bakery-gold" />
-                        {product.rating}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-6">
-                    <h3 className="text-xl font-serif font-semibold mb-2">
-                      {product.name ?? product.flavor}
-                    </h3>
-                    <p className="text-muted-foreground mb-4 leading-relaxed">{product.description}</p>
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-primary">₹{product.price.toFixed(2)}</span>
-
-                      <Button
-                        variant="bakery"
-                        size="sm"
-                        onClick={() => handleAddToCart(product.id)}
-                        className="flex items-center gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
+                  {category.label}
+                </button>
               ))}
-            </motion.div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section-padding pt-0">
+        <div className="container-bakery">
+          {loading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-3xl bg-muted animate-pulse aspect-[3/4]" />
+              ))}
+            </div>
+          ) : products.length > 0 ? (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeCategory}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+              >
+                {products.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={toCardData(product, index)}
+                    onAdd={handleAddToCart}
+                    index={index}
+                  />
+                ))}
+              </motion.div>
+            </AnimatePresence>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-20"
-            >
-              <p className="text-xl text-muted-foreground">
+            <Reveal>
+              <p className="text-center py-20 text-lg text-muted-foreground">
                 No products found in this category.
               </p>
-            </motion.div>
+            </Reveal>
           )}
         </div>
       </section>
