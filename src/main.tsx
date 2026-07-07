@@ -12,6 +12,7 @@ import "@fontsource/plus-jakarta-sans/400.css";
 import "@fontsource/plus-jakarta-sans/500.css";
 import "@fontsource/plus-jakarta-sans/600.css";
 
+// export const API_BASE_URL = "http://localhost:3001/api";
 export const API_BASE_URL = "https://gurukulbakery.com/api";
 
 const rootElement = document.getElementById("root");

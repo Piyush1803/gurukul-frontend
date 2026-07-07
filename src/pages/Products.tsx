@@ -37,11 +37,14 @@ const Products = ({ embedded = false }: ProductsProps) => {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>("all");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const { addItem } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
+      setError(false);
       try {
         const baseUrl = `${API_BASE_URL}/product`;
         const categoryMap = {
@@ -86,7 +89,10 @@ const Products = ({ embedded = false }: ProductsProps) => {
         } else {
           setProducts(Array.isArray(result.data) ? result.data : []);
         }
-      } catch {
+      } catch (err) {
+        // Distinguish a real failure (network/CORS/5xx) from a genuinely empty category.
+        console.error("Products: failed to load products", err);
+        setError(true);
         setProducts([]);
       } finally {
         setLoading(false);
@@ -94,7 +100,7 @@ const Products = ({ embedded = false }: ProductsProps) => {
     };
 
     fetchProducts();
-  }, [activeCategory]);
+  }, [activeCategory, reloadKey]);
 
   const categories: { key: CategoryKey; label: string }[] = [
     { key: "all", label: "All" },
@@ -189,6 +195,21 @@ const Products = ({ embedded = false }: ProductsProps) => {
                 <div key={i} className="rounded-3xl bg-muted animate-pulse aspect-[3/4]" />
               ))}
             </div>
+          ) : error ? (
+            <Reveal>
+              <div className="text-center py-20">
+                <p className="text-lg text-muted-foreground mb-6">
+                  We couldn't load the products right now. Please try again in a moment.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setReloadKey((k) => k + 1)}
+                  className="px-6 py-2.5 rounded-full text-sm font-medium bg-gradient-primary text-primary-foreground shadow-warm transition-all duration-300 hover:scale-105"
+                >
+                  Retry
+                </button>
+              </div>
+            </Reveal>
           ) : products.length > 0 ? (
             <AnimatePresence mode="wait">
               <motion.div

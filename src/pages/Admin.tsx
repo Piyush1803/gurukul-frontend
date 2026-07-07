@@ -67,6 +67,7 @@ const Admin: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
@@ -77,11 +78,13 @@ const Admin: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
+            setLoadError(false);
             try {
                 // Fetch all products from backend
                 const productsRes = await fetch(`${API_BASE_URL}/product/all`);
+                if (!productsRes.ok) throw new Error(`HTTP ${productsRes.status}`);
                 const productsData = await productsRes.json();
-                
+
                 if (productsData.data) {
                     const { 
                         deliciousCakes = [], 
@@ -102,6 +105,7 @@ const Admin: React.FC = () => {
                 setOrders([]);
             } catch (error) {
                 console.error("Error fetching data:", error);
+                setLoadError(true);
                 setProducts([]);
                 setOrders([]);
             }
@@ -552,6 +556,10 @@ const Admin: React.FC = () => {
                     {loading ? (
                         <div className="p-6 text-center text-muted-foreground">
                             Loading...
+                        </div>
+                    ) : loadError ? (
+                        <div className="p-6 text-center text-red-600">
+                            Couldn't load products. Check that the backend is running and reachable, then reload.
                         </div>
                     ) : (
                         <table className="min-w-full divide-y divide-gray-200">
